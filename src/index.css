@@ -32,6 +32,8 @@
   --color-gray-900: #111;
   --color-gray-700: #333;
   --color-gray-500: #666;
+  --color-neutral-100: #F4F4F4;
+  --color-white:     #ffffff;
   --color-cream-50:  #f7f7f4;
   --color-cream-100: #f2f1ed;
   --color-cream-200: #e6e5e0;
@@ -39,11 +41,17 @@
   --color-ink:       #26251e;
   --color-ink-50:    rgba(38, 37, 30, 0.5);
 
+  /* Azur — blue hues (brand-aligned steps) */
+  --color-azur-100: #e6e5ff;
+  --color-azur-200: #cbcbff;
+  --color-azur-600: #2a6dff;
+  --color-azur-700: #2c5dd6;
+
   /* ── Semantic — purpose-based, reference primitives ──
    * These are the tokens you use in components.
    * e.g. --color-surface → bg-surface, --color-text-primary → text-text-primary */
-  --color-surface:        var(--color-cream-50);
-  --color-card:           var(--color-cream-100);
+  --color-surface:        var(--color-neutral-100);
+  --color-card:           var(--color-white);
   --color-text-primary:   var(--color-ink);
   --color-text-muted:     var(--color-ink-50);
   --color-text-secondary: var(--color-gray-500);
@@ -55,10 +63,11 @@
   /* ── Component — map to semantic tokens ──
    * These power specific UI elements.
    * e.g. --color-btn-primary → bg-btn-primary, hover:bg-btn-primary-hover */
-  --color-btn-primary:         var(--color-action-primary);
-  --color-btn-primary-hover:   var(--color-action-primary-hover);
-  --color-btn-secondary:       var(--color-action-secondary);
-  --color-btn-secondary-hover: var(--color-action-secondary-hover);
+  --color-btn-primary:         var(--color-azur-600);
+  --color-btn-primary-hover:   var(--color-azur-700);
+  --color-btn-secondary:       var(--color-azur-100);
+  --color-btn-secondary-hover: var(--color-azur-200);
+  --color-card-title:          var(--color-btn-primary);
 
   /* ── Typography ──
    * --font-{name} → font-{name}
