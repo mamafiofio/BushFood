@@ -7,7 +7,7 @@ function PricingCard({ title, priceAmount, pricePeriod, includesText, features, 
     return (
         <div className="flex flex-col min-h-[380px] bg-card rounded p-4 w-80 shrink-0">
             <div className="flex flex-col">
-                <h3 className="text-[22px] leading-7 font-normal text-text-primary mb-2">
+                <h3 className="text-[22px] leading-7 font-normal text-card-title mb-2">
                     {title}
                 </h3>
 
