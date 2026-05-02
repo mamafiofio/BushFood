@@ -1,76 +1,82 @@
-/* index.css — Global styles + design tokens
- *
- * HOW TAILWIND MAPS TOKENS → CLASSES
- * Tailwind reads @theme and auto-generates utility classes from the token names.
- * It strips the category prefix (--color-, --font-) and creates classes:
- *
- *   --color-{name}  →  bg-{name}      (background-color)
- *                       text-{name}    (color)
- *                       border-{name}  (border-color)
- *
- *   --font-{name}   →  font-{name}    (font-family)
- *
- * Example: --color-card → bg-card, text-card, border-card
- * There is no config file connecting them — the naming convention IS the mapping.
- *
- * TOKEN LAYERS
- * Tokens are organised in three layers:
- *   1. Primitive  — raw palette values (gray-900, cream-50, etc.)
- *   2. Semantic   — purpose-based names that reference primitives (surface, text-primary)
- *   3. Component  — map semantic tokens to specific UI elements (btn-primary, btn-secondary)
- *
- * Changing a primitive updates every semantic and component token that references it.
- */
-
 @import "tailwindcss";
 
+/*
+ * Museum kid treasure hunt — design tokens (Tailwind v4 @theme).
+ * Primitives → semantics → utilities (bg-hunt-*, text-hunt-*, etc.).
+ * AA: body on surface and headline on surface meet 4.5:1+; interactive uses dark foreground.
+ */
+
 @theme {
+  /* Typography — Roboto Slab Regular (400) default; Black (900) via `font-black` on headings */
+  --font-slab: "Roboto Slab", Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-slab);
 
-  /* ── Primitives — raw palette values ──
-   * These define the raw colour palette. They generate classes (e.g. bg-cream-50)
-   * but you should avoid using them directly — use semantic tokens instead. */
-  --color-gray-900: #111;
-  --color-gray-700: #333;
-  --color-gray-500: #666;
-  --color-neutral-100: #F4F4F4;
-  --color-white:     #ffffff;
-  --color-cream-50:  #f7f7f4;
-  --color-cream-100: #f2f1ed;
-  --color-cream-200: #e6e5e0;
-  --color-cream-300: #D8D6CE;
-  --color-ink:       #26251e;
-  --color-ink-50:    rgba(38, 37, 30, 0.5);
+  /* Motion (reference from components via arbitrary var or utilities) */
+  --ease-hunt: cubic-bezier(0.42, 0, 0.58, 1);
+  --duration-hunt: 200ms;
+  --radius-button: 1rem;
+  --radius-field: 0.75rem;
+  --radius-device-shell: 2.75rem;
+  --spacing-hunt-screen: 1.25rem;
+  --spacing-hunt-gap: 1.5rem;
+  /** Tighter vertical stack (e.g. welcome heading + intro) — 16px */
+  --spacing-hunt-stack: 1rem;
+  --spacing-hunt-tight: 0.75rem;
+  --spacing-hunt-button-x: 1.25rem;
+  --spacing-hunt-button-y: 0.625rem;
+  /** Minimum tap target height (approx. 44px) */
+  --spacing-hunt-touch: 2.75rem;
+  --spacing-hunt-field-x: 1rem;
+  --min-height-hunt-button: 65px;
 
-  /* Azur — blue hues (brand-aligned steps) */
-  --color-azur-100: #e6e5ff;
-  --color-azur-200: #cbcbff;
-  --color-azur-600: #2a6dff;
-  --color-azur-700: #2c5dd6;
+  /* Primitives */
+  --color-hunt-surface: #faf8f3;
+  --color-hunt-headline: #204307;
+  --color-hunt-body: #404040;
+  --color-hunt-body-inverse: #ffffff;
+  --color-hunt-secondary-dark: #625312;
+  --color-hunt-lilac: #f0e4fe;
+  --color-hunt-coral: #e29176;
+  --color-hunt-interactive: #8ff68f;
+  /* Darker companion for hover/focus ring contrast on interactive */
+  --color-hunt-interactive-pressed: #6dd96d;
+  /* Dark panels (headline green reads as “museum dark”) */
+  --color-hunt-dark-surface: #204307;
+  --color-hunt-dark-surface-elevated: #2a5a0c;
+  --color-hunt-chrome: #161616;
 
-  /* ── Semantic — purpose-based, reference primitives ──
-   * These are the tokens you use in components.
-   * e.g. --color-surface → bg-surface, --color-text-primary → text-text-primary */
-  --color-surface:        var(--color-neutral-100);
-  --color-card:           var(--color-white);
-  --color-text-primary:   var(--color-ink);
-  --color-text-muted:     var(--color-ink-50);
-  --color-text-secondary: var(--color-gray-500);
-  --color-action-primary:          var(--color-gray-900);
-  --color-action-primary-hover:    var(--color-gray-700);
-  --color-action-secondary:        var(--color-cream-200);
-  --color-action-secondary-hover:  var(--color-cream-300);
+  /* Semantics */
+  --color-hunt-bg: var(--color-hunt-surface);
+  --color-hunt-text: var(--color-hunt-body);
+  --color-hunt-text-soft: #5a5a5a;
+  --color-hunt-text-heading: var(--color-hunt-headline);
+  --color-hunt-text-on-dark: var(--color-hunt-body-inverse);
+  --color-hunt-accent-muted: var(--color-hunt-lilac);
+  --color-hunt-accent-warm: var(--color-hunt-coral);
+  --color-hunt-accent-olive: var(--color-hunt-secondary-dark);
+  --color-hunt-action-bg: var(--color-hunt-interactive);
+  --color-hunt-action-bg-hover: var(--color-hunt-interactive-pressed);
+  --color-hunt-action-fg: var(--color-hunt-headline);
+  --color-hunt-chip-border: color-mix(in srgb, var(--color-hunt-secondary-dark) 35%, transparent);
+  --color-hunt-field-bg: var(--color-hunt-body-inverse);
+  --color-hunt-field-border: color-mix(in srgb, var(--color-hunt-secondary-dark) 45%, transparent);
+  --color-hunt-focus-ring: var(--color-hunt-headline);
+  --size-hunt-shape: 3rem;
+}
 
-  /* ── Component — map to semantic tokens ──
-   * These power specific UI elements.
-   * e.g. --color-btn-primary → bg-btn-primary, hover:bg-btn-primary-hover */
-  --color-btn-primary:         var(--color-azur-600);
-  --color-btn-primary-hover:   var(--color-azur-700);
-  --color-btn-secondary:       var(--color-azur-100);
-  --color-btn-secondary-hover: var(--color-azur-200);
-  --color-card-title:          var(--color-btn-primary);
+@layer components {
+  .hunt-shape {
+    width: var(--size-hunt-shape);
+    height: var(--size-hunt-shape);
+    border-radius: 9999px;
+  }
+}
 
-  /* ── Typography ──
-   * --font-{name} → font-{name}
-   * e.g. --font-sans → font-sans (applied on <body> in index.html) */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+@layer utilities {
+  .transition-hunt {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke,
+      opacity, box-shadow, transform;
+    transition-duration: var(--duration-hunt);
+    transition-timing-function: var(--ease-hunt);
+  }
 }
