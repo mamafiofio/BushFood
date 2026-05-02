@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { HUNT_PLANT_TILES } from "../../tokens/huntPlantTiles";
 import { HuntPrimaryButton } from "./HuntPrimaryButton";
 import { WattleseedFoundSheet } from "./WattleseedFoundSheet";
@@ -84,11 +83,11 @@ export function HomeScreen({ foragerName }: HomeScreenProps) {
   }, []);
 
   return (
-    <main className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-hunt-bg text-center">
+    <main className="relative flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-hunt-bg text-center">
       <header className="shrink-0 px-hunt-screen pt-[48px]">
-        <h2 className="font-black text-balance text-hunt-h1 tracking-tight text-hunt-text-heading">
+        <h1 className="font-black text-balance text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading">
           {greeting}
-        </h2>
+        </h1>
         <p className="mx-hunt-subhead-inline mt-hunt-tight text-pretty text-base font-normal leading-relaxed text-hunt-text-subhead">
           Find plant markers in the galleries and scan them with your camera.
         </p>
@@ -127,32 +126,29 @@ export function HomeScreen({ foragerName }: HomeScreenProps) {
         ) : null}
       </div>
 
-      {scanOpen
-        ? createPortal(
-            <div
-              className="fixed inset-0 z-[300] flex flex-col bg-black"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Camera preview"
-            >
-              <video
-                ref={videoRef}
-                className="absolute inset-0 h-full w-full object-cover"
-                autoPlay
-                playsInline
-                muted
-              />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-hunt-screen pt-hunt-gap">
-                <div className="pointer-events-auto mx-auto w-full max-w-md">
-                  <HuntPrimaryButton type="button" onClick={stopScan}>
-                    Close camera
-                  </HuntPrimaryButton>
-                </div>
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
+      {scanOpen ? (
+        <div
+          className="absolute inset-0 z-[300] flex flex-col overflow-hidden rounded-[length:var(--radius-device-shell)] bg-black"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Camera preview"
+        >
+          <video
+            ref={videoRef}
+            className="absolute inset-0 h-full w-full object-cover"
+            autoPlay
+            playsInline
+            muted
+          />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-hunt-screen pt-hunt-gap">
+            <div className="pointer-events-auto mx-auto w-full max-w-md">
+              <HuntPrimaryButton type="button" onClick={stopScan}>
+                Close camera
+              </HuntPrimaryButton>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <WattleseedFoundSheet
         open={wattleseedOpen}
