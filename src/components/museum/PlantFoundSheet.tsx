@@ -1,15 +1,17 @@
 import { X } from "@phosphor-icons/react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { WATTLESEED_FOUND_COPY } from "../../tokens/foundPlantCopy";
+import { FOUND_PLANT_COPY } from "../../tokens/foundPlantCopy";
+import { HUNT_PLANT_FOUND_MEDIA } from "../../tokens/huntPlantFoundMedia";
+import { HUNT_PLANT_TILES, type HuntPlantId } from "../../tokens/huntPlantTiles";
 import { MUSEUM_DEVICE } from "../../tokens/museum";
-import stickerArt from "../../assets/museum/sticker.svg";
-import wattleseedArt from "../../assets/native-plants/Wattleseed.svg";
 import { HuntPrimaryButton } from "./HuntPrimaryButton";
 
-type WattleseedFoundSheetProps = {
+type PlantFoundSheetProps = {
+  plantId: HuntPlantId | null;
   open: boolean;
-  onDismiss: () => void;
+  /** Called when the sheet finishes closing; `id` is the plant that was shown (null only if unknown). */
+  onDismiss: (id: HuntPlantId | null) => void;
   onAddToCollection: () => void;
 };
 
@@ -23,19 +25,34 @@ const EXIT_FALLBACK_MS = 350;
 const STICKER_REVEAL_FALLBACK_MS = 520;
 
 function animationNameList(e: React.AnimationEvent<HTMLElement>): string[] {
-  return e.animationName.split(",").map((s) => s.trim()).filter(Boolean);
+  return e.animationName
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function tileHeroSrc(id: HuntPlantId): string {
+  const tile = HUNT_PLANT_TILES.find((t) => t.id === id);
+  return tile?.src ?? "";
 }
 
 /**
- * Found screen — bottom sheet template (opens from the Wattleseed tile for now; layout reused for other plants later).
+ * Found screen — bottom sheet (one instance per homescreen; content driven by `plantId`).
  */
-export function WattleseedFoundSheet({ open, onDismiss, onAddToCollection }: WattleseedFoundSheetProps) {
+export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }: PlantFoundSheetProps) {
   const [rendered, setRendered] = useState(false);
   const [exiting, setExiting] = useState(false);
   const [showSticker, setShowSticker] = useState(false);
+  /** Keeps sheet content during exit after parent clears `plantId` (e.g. Escape). */
+  const [resolvedPlantId, setResolvedPlantId] = useState<HuntPlantId | null>(null);
+  const resolvedPlantIdRef = useRef<HuntPlantId | null>(null);
   const exitDoneRef = useRef(false);
   const exitingRef = useRef(false);
   const exitFallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useLayoutEffect(() => {
+    resolvedPlantIdRef.current = resolvedPlantId;
+  }, [resolvedPlantId]);
 
   const clearExitFallback = useCallback(() => {
     if (exitFallbackTimerRef.current != null) {
@@ -48,7 +65,9 @@ export function WattleseedFoundSheet({ open, onDismiss, onAddToCollection }: Wat
     if (exitDoneRef.current) return;
     exitDoneRef.current = true;
     clearExitFallback();
-    onDismiss();
+    const finishedId = resolvedPlantIdRef.current;
+    setResolvedPlantId(null);
+    onDismiss(finishedId);
     setExiting(false);
     setRendered(false);
   }, [clearExitFallback, onDismiss]);
@@ -58,13 +77,14 @@ export function WattleseedFoundSheet({ open, onDismiss, onAddToCollection }: Wat
   }, [exiting]);
 
   useLayoutEffect(() => {
-    if (open) {
+    if (open && plantId != null) {
       exitDoneRef.current = false;
       setRendered(true);
       setExiting(false);
       setShowSticker(false);
+      setResolvedPlantId(plantId);
     }
-  }, [open]);
+  }, [open, plantId]);
 
   useLayoutEffect(() => {
     if (!open && rendered) {
@@ -114,9 +134,12 @@ export function WattleseedFoundSheet({ open, onDismiss, onAddToCollection }: Wat
     [completeExit],
   );
 
-  if (!rendered) return null;
+  if (!rendered || resolvedPlantId == null) return null;
 
-  const copy = WATTLESEED_FOUND_COPY;
+  const copy = FOUND_PLANT_COPY[resolvedPlantId];
+  const media = HUNT_PLANT_FOUND_MEDIA[resolvedPlantId];
+  const heroSrc = tileHeroSrc(resolvedPlantId);
+  const titleId = `plant-found-title-${resolvedPlantId}`;
 
   return createPortal(
     <>
@@ -133,7 +156,7 @@ export function WattleseedFoundSheet({ open, onDismiss, onAddToCollection }: Wat
         <div
           role="dialog"
           aria-modal="true"
-          aria-labelledby="wattleseed-found-title"
+          aria-labelledby={titleId}
           className={
             exiting
               ? "found-sheet-panel-exit pointer-events-auto w-full"
@@ -142,10 +165,6 @@ export function WattleseedFoundSheet({ open, onDismiss, onAddToCollection }: Wat
           style={{ maxWidth: panelMax }}
           onAnimationEnd={onSheetMotionAnimationEnd}
         >
-          {/*
-           * Safe-area + slide live on the same animated box so translateY(100%) moves the whole
-           * sheet off-screen; padding was previously outside the transform and looked wrong on close.
-           */}
           <div className="pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]">
             <div className="relative flex min-h-0 max-h-[min(90dvh,844px)] w-full flex-col overflow-hidden rounded-t-[length:var(--radius-device-shell)] bg-hunt-bg text-left shadow-lg ring-1 ring-hunt-chip-border">
               <button
@@ -166,7 +185,7 @@ export function WattleseedFoundSheet({ open, onDismiss, onAddToCollection }: Wat
                   <div className="relative size-[length:var(--size-hunt-plant-tile)] shrink-0">
                     <div className="flex size-full items-center justify-center overflow-hidden rounded-full">
                       <img
-                        src={wattleseedArt}
+                        src={heroSrc}
                         alt=""
                         className="max-h-full max-w-full object-contain object-center"
                       />
@@ -176,7 +195,7 @@ export function WattleseedFoundSheet({ open, onDismiss, onAddToCollection }: Wat
                       className="pointer-events-none absolute right-0 top-0 z-20 block h-auto w-[38%] max-w-[5.75rem] min-w-[4.25rem] origin-top-right translate-x-[calc(20%+var(--spacing-hunt-gap)-var(--spacing-hunt-stack))] translate-y-[calc(2*var(--spacing-hunt-gap)-2*var(--spacing-hunt-stack)-10%)] rotate-[-15deg]"
                     >
                       <img
-                        src={stickerArt}
+                        src={media.stickerSrc}
                         alt=""
                         className={`h-auto w-full select-none ${showSticker ? "found-sticker-pop" : "opacity-0"}`}
                         decoding="async"
@@ -188,7 +207,7 @@ export function WattleseedFoundSheet({ open, onDismiss, onAddToCollection }: Wat
                 <div className="px-hunt-screen pt-hunt-stack text-center">
                   <p className="text-base font-bold leading-normal text-hunt-text-heading">You found</p>
                   <h1
-                    id="wattleseed-found-title"
+                    id={titleId}
                     className="mt-hunt-tight-half text-balance font-black text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading"
                   >
                     {copy.displayName}
@@ -196,10 +215,13 @@ export function WattleseedFoundSheet({ open, onDismiss, onAddToCollection }: Wat
                 </div>
 
                 <div className="w-full px-hunt-screen py-hunt-found-media-y">
-                  <div
-                    className="aspect-video w-full overflow-hidden rounded-[length:var(--radius-field)] bg-white/5 ring-1 ring-hunt-chip-border"
-                    aria-hidden
-                  />
+                  <div className="aspect-video w-full overflow-hidden rounded-[length:var(--radius-field)] bg-white/5 ring-1 ring-hunt-chip-border">
+                    <img
+                      src={media.photoSrc}
+                      alt=""
+                      className="h-full w-full object-cover object-center"
+                    />
+                  </div>
                 </div>
 
                 <div className="px-hunt-screen pb-hunt-gap">

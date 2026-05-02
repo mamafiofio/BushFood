@@ -14,3 +14,5 @@ export const HUNT_PLANT_TILES = [
   { id: "midyim", label: "Midyim", src: midyim },
   { id: "murnong", label: "Murnong", src: murnong },
 ] as const;
+
+export type HuntPlantId = (typeof HUNT_PLANT_TILES)[number]["id"];
