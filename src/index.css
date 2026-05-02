@@ -3,17 +3,22 @@
 /*
  * Museum kid treasure hunt — design tokens (Tailwind v4 @theme).
  * Primitives → semantics → utilities (bg-hunt-*, text-hunt-*, etc.).
- * AA: body on surface and headline on surface meet 4.5:1+; interactive uses dark foreground.
+ * Palette: deep green canvas, lavender headlines, cream body/subhead, coral CTAs, olive secondary.
  */
 
 @theme {
   /* Typography — Roboto Slab Regular (400) default; Black (900) via `font-black` on headings */
   --font-slab: "Roboto Slab", Georgia, "Times New Roman", serif;
   --font-sans: var(--font-slab);
+  /** H1 — display / welcome / homescreen greeting */
+  --text-hunt-h1: 48px;
+  --text-hunt-h1--line-height: 1.12;
 
   /* Motion (reference from components via arbitrary var or utilities) */
   --ease-hunt: cubic-bezier(0.42, 0, 0.58, 1);
   --duration-hunt: 200ms;
+  /** Full-screen step cross-fade (welcome ↔ homescreen) */
+  --duration-hunt-screen: 420ms;
   --radius-button: 1rem;
   --radius-field: 0.75rem;
   --radius-device-shell: 2.75rem;
@@ -30,25 +35,29 @@
   --min-height-hunt-button: 65px;
 
   /* Primitives */
-  --color-hunt-surface: #faf8f3;
-  --color-hunt-headline: #204307;
-  --color-hunt-body: #404040;
+  --color-hunt-surface: #083429;
+  --color-hunt-headline: #dcaeff;
+  --color-hunt-body: #faf8f3;
   --color-hunt-body-inverse: #ffffff;
   --color-hunt-secondary-dark: #625312;
-  --color-hunt-lilac: #f0e4fe;
-  --color-hunt-coral: #e29176;
-  --color-hunt-interactive: #8ff68f;
-  /* Darker companion for hover/focus ring contrast on interactive */
-  --color-hunt-interactive-pressed: #6dd96d;
-  /* Dark panels (headline green reads as “museum dark”) */
-  --color-hunt-dark-surface: #204307;
-  --color-hunt-dark-surface-elevated: #2a5a0c;
-  --color-hunt-chrome: #161616;
+  --color-hunt-lilac: color-mix(in srgb, #dcaeff 55%, #083429);
+  --color-hunt-coral: #fc9884;
+  --color-hunt-interactive: #fc9884;
+  --color-hunt-interactive-pressed: color-mix(in srgb, #fc9884 78%, #083429 22%);
+  --color-hunt-dark-surface: #083429;
+  --color-hunt-dark-surface-elevated: color-mix(in srgb, #083429 88%, #625312 12%);
+  --color-hunt-chrome: #083429;
 
   /* Semantics */
   --color-hunt-bg: var(--color-hunt-surface);
   --color-hunt-text: var(--color-hunt-body);
-  --color-hunt-text-soft: #5a5a5a;
+  --color-hunt-text-subhead: #faf8f3;
+  /** WCAG AA on #083429 (~5:1+) — secondary labels on dark canvas */
+  --color-hunt-text-muted-on-dark: #decfae;
+  /** WCAG AA on #faf8f3 field (~4.5:1+) — placeholders */
+  --color-hunt-text-placeholder: #475951;
+  /** Muted on dark (supporting lines); ~6:1 on #083429 */
+  --color-hunt-text-soft: #e6e2d9;
   --color-hunt-text-heading: var(--color-hunt-headline);
   --color-hunt-text-on-dark: var(--color-hunt-body-inverse);
   --color-hunt-accent-muted: var(--color-hunt-lilac);
@@ -56,12 +65,15 @@
   --color-hunt-accent-olive: var(--color-hunt-secondary-dark);
   --color-hunt-action-bg: var(--color-hunt-interactive);
   --color-hunt-action-bg-hover: var(--color-hunt-interactive-pressed);
-  --color-hunt-action-fg: var(--color-hunt-headline);
-  --color-hunt-chip-border: color-mix(in srgb, var(--color-hunt-secondary-dark) 35%, transparent);
-  --color-hunt-field-bg: var(--color-hunt-body-inverse);
-  --color-hunt-field-border: color-mix(in srgb, var(--color-hunt-secondary-dark) 45%, transparent);
+  --color-hunt-action-fg: #083429;
+  --color-hunt-chip-border: color-mix(in srgb, var(--color-hunt-secondary-dark) 45%, transparent);
+  --color-hunt-field-bg: #faf8f3;
+  --color-hunt-field-fg: #083429;
+  --color-hunt-field-border: color-mix(in srgb, var(--color-hunt-secondary-dark) 55%, #faf8f3 45%);
   --color-hunt-focus-ring: var(--color-hunt-headline);
   --size-hunt-shape: 3rem;
+  /** ~175px plant circles at 390 logical width */
+  --size-hunt-plant-tile: 10.875rem;
 }
 
 @layer components {

@@ -15,6 +15,8 @@ export const MUSEUM_DEVICE = {
 
 export const MUSEUM_MOTION = {
   durationMs: 200,
+  /** Welcome ↔ homescreen cross-fade (matches `--duration-hunt-screen`). */
+  screenTransitionMs: 420,
   /** Standard ease-in-out for UI transitions. */
   easingCss: "cubic-bezier(0.42, 0, 0.58, 1)",
 } as const;

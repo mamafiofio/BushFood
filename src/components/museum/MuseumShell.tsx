@@ -6,8 +6,8 @@ export function MuseumShell() {
   return (
     <main className="flex min-h-0 flex-1 flex-col p-hunt-screen">
       <header className="flex flex-col gap-hunt-gap">
-        <p className="text-sm font-medium text-hunt-accent-olive">Koorie plants · Victoria</p>
-        <h1 className="text-balance font-semibold tracking-tight text-hunt-text-heading text-3xl leading-tight">
+        <p className="text-sm font-medium text-hunt-text-muted-on-dark">Koorie plants · Victoria</p>
+        <h1 className="text-balance font-black tracking-tight text-hunt-h1 text-hunt-text-heading">
           Museum treasure hunt
         </h1>
         <p className="text-pretty text-base leading-relaxed text-hunt-text">
@@ -37,8 +37,8 @@ export function MuseumShell() {
             Primary control preview (not interactive yet)
           </div>
           <p className="text-sm text-hunt-text-soft">
-            Interactive controls will use this green with dark text for contrast. Motion uses
-            ease-in-out over 200ms.
+            Primary actions use coral with deep green text for contrast. Motion uses ease-in-out
+            over 200ms.
           </p>
         </div>
       </section>

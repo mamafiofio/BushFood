@@ -1,11 +1,11 @@
 import { IPhone14Frame } from "./components/device/IPhone14Frame";
-import { WelcomeScreen } from "./components/museum/WelcomeScreen";
+import { MuseumFlow } from "./components/museum/MuseumFlow";
 
 export default function App() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-hunt-chrome p-hunt-screen">
+    <div className="flex min-h-screen flex-col items-center justify-center overflow-x-hidden bg-hunt-chrome p-hunt-screen">
       <IPhone14Frame>
-        <WelcomeScreen />
+        <MuseumFlow />
       </IPhone14Frame>
     </div>
   );
