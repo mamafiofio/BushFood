@@ -15,12 +15,32 @@
   --text-hunt-h1--line-height: 1.12;
   /** H1 kerning — 1% of font size (≈ letter-spacing) */
   --tracking-hunt-h1: 0.01em;
+  /** H2 — 18px semibold (use with `font-semibold` + `text-hunt-text` for beige on canvas) */
+  --text-hunt-h2: 18px;
+  --text-hunt-h2--line-height: 1.35;
+  /** H3 — 16px bold (Found panel category labels; use with `font-bold` + `text-hunt-text-heading` for lilac) */
+  --text-hunt-h3: 16px;
+  --text-hunt-h3--line-height: 1.35;
 
   /* Motion (reference from components via arbitrary var or utilities) */
   --ease-hunt: cubic-bezier(0.42, 0, 0.58, 1);
   --duration-hunt: 200ms;
   /** Full-screen step cross-fade (welcome ↔ homescreen) */
   --duration-hunt-screen: 420ms;
+  /** Found bottom sheet slide-in */
+  --duration-hunt-found-sheet: 480ms;
+  /** Found sheet close — panel + backdrop fade */
+  --duration-hunt-found-sheet-out: 300ms;
+  /** Light overshoot on sheet enter */
+  --ease-hunt-found-sheet: cubic-bezier(0.34, 1.12, 0.64, 1);
+  /** Close fade — smooth ease-out */
+  --ease-hunt-found-sheet-out: cubic-bezier(0.4, 0, 0.2, 1);
+  /** Found sticker pop-in (after sheet enter finishes) — ease-in-out + overshoot in keyframes */
+  --duration-hunt-found-sticker: 620ms;
+  --ease-hunt-found-sticker: ease-in-out;
+  /** Welcome plant marquee — one full loop (duplicated track, translate -50%) */
+  --duration-hunt-welcome-marquee: 42s;
+  --ease-hunt-welcome-marquee: linear;
   --radius-button: 1rem;
   --radius-field: 0.75rem;
   --radius-device-shell: 2.75rem;
@@ -33,6 +53,8 @@
   --spacing-hunt-tight-half: 0.375rem;
   /** Homescreen subhead horizontal inset — 32px (Spacing/M_32) */
   --spacing-hunt-subhead-inline: 2rem;
+  /** Welcome screen: space above “Welcome to Bush Food” headline */
+  --spacing-hunt-welcome-title-pt: 140px;
   --spacing-hunt-button-x: 1.25rem;
   --spacing-hunt-button-y: 0.625rem;
   /** Minimum tap target height (approx. 44px) */
@@ -45,10 +67,10 @@
   );
   /** Found sheet: vertical padding around 16:9 media slot — 36px (Spacing/M_36) */
   --spacing-hunt-found-media-y: 36px;
-  /** Found sheet: bold category title → body — 16px (Spacing/S_16) */
-  --spacing-hunt-found-category-to-body: 16px;
-  /** Found sheet: between sections — 36px (Spacing/M_36) */
-  --spacing-hunt-found-section-gap: 36px;
+  /** Found sheet: category title → body — 8px (Spacing/XS_8) */
+  --spacing-hunt-found-category-to-body: 8px;
+  /** Found sheet: between sections — 24px (Spacing/S_24) */
+  --spacing-hunt-found-section-gap: 24px;
   /** Found sheet: gap below close before scrollbar thumb — 24px (Spacing/S_24) */
   --spacing-hunt-found-scrollbar-after-close: 24px;
   --spacing-hunt-field-x: 1rem;
@@ -84,7 +106,7 @@
   --color-hunt-accent-warm: var(--color-hunt-coral);
   --color-hunt-accent-olive: var(--color-hunt-secondary-dark);
   --color-hunt-action-bg: var(--color-hunt-interactive);
-  --color-hunt-action-bg-hover: var(--color-hunt-interactive-pressed);
+  --color-hunt-action-bg-hover: #ffab9b;
   --color-hunt-action-fg: #083429;
   --color-hunt-chip-border: color-mix(in srgb, var(--color-hunt-secondary-dark) 45%, transparent);
   --color-hunt-field-bg: #faf8f3;
@@ -96,6 +118,8 @@
   --size-hunt-shape: 3rem;
   /** ~175px plant circles at 390 logical width */
   --size-hunt-plant-tile: 10.875rem;
+  /** Welcome marquee plant art — 130px square */
+  --size-hunt-welcome-marquee-tile: 130px;
   /** Scrollbars — white thumb at 20% opacity, transparent track */
   --color-hunt-scrollbar-thumb: rgb(255 255 255 / 0.2);
 }
@@ -132,6 +156,32 @@
     border-radius: 9999px;
   }
 
+  @keyframes hunt-welcome-marquee {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  /**
+   * Welcome screen: duplicated icon row; -50% = one copy width for seamless loop (right → left).
+   */
+  .welcome-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: hunt-welcome-marquee var(--duration-hunt-welcome-marquee) var(--ease-hunt-welcome-marquee)
+      infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .welcome-marquee-track {
+      animation: none;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
   /**
    * Found sheet scroll: WebKit scrollbar track inset (thumb 20% white); clears close + corner.
    */
@@ -160,6 +210,105 @@
 
   .found-sheet-scroll::-webkit-scrollbar-corner {
     background: transparent;
+  }
+
+  @keyframes hunt-found-backdrop-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes hunt-found-backdrop-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes hunt-found-sheet-in {
+    from {
+      transform: translate3d(0, 100%, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes hunt-found-sheet-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  .found-sheet-backdrop-enter {
+    animation: hunt-found-backdrop-in var(--duration-hunt-screen) var(--ease-hunt) both;
+  }
+
+  .found-sheet-backdrop-exit {
+    animation: hunt-found-backdrop-out var(--duration-hunt-found-sheet-out) var(--ease-hunt-found-sheet-out)
+      both forwards;
+  }
+
+  .found-sheet-panel-enter {
+    animation: hunt-found-sheet-in var(--duration-hunt-found-sheet) var(--ease-hunt-found-sheet) both;
+  }
+
+  .found-sheet-panel-exit {
+    animation: hunt-found-sheet-out var(--duration-hunt-found-sheet-out) var(--ease-hunt-found-sheet-out)
+      both forwards;
+  }
+
+  @keyframes hunt-found-sticker-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.18);
+    }
+    38% {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+    /* Overshoot — visibly larger than final 1.2 before settling */
+    58% {
+      transform: scale(1.34);
+    }
+    78% {
+      transform: scale(1.06);
+    }
+    92% {
+      transform: scale(1.24);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  .found-sticker-pop {
+    animation: hunt-found-sticker-pop var(--duration-hunt-found-sticker) var(--ease-hunt-found-sticker) both
+      forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .found-sheet-backdrop-enter,
+    .found-sheet-backdrop-exit,
+    .found-sheet-panel-enter,
+    .found-sheet-panel-exit {
+      animation: none;
+    }
+
+    .found-sticker-pop {
+      animation: none;
+      opacity: 1;
+      transform: scale(1.2);
+    }
   }
 }
 
