@@ -1,0 +1,29 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<rect width="300" height="300" rx="150" fill="#E29176"/>
+<circle cx="150" cy="150" r="104" fill="#F7EFFF"/>
+<g id="Repeat group 3_inner" data-figma-trr="r9u15.1-0f">
+<circle cx="149.937" cy="63.7331" r="5.70892" fill="#46246F"/>
+</g>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(131.457 -61.2992) rotate(40)"/>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(271.561 -23.7582) rotate(80)"/>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(354.756 95.0571) rotate(120)"/>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(342.115 239.552) rotate(160)"/>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(239.551 342.115) rotate(-160)"/>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(95.0563 354.757) rotate(-120)"/>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(-23.7588 271.561) rotate(-80)"/>
+<use xlink:href="#Repeat%20group%203_inner" transform="translate(-61.2995 131.457) rotate(-40)"/>
+<g id="Repeat group 4_inner" data-figma-trr="r11u10.9-0f">
+<circle cx="150.444" cy="96.0881" r="4.9868" fill="#46246F"/>
+</g>
+<use xlink:href="#Repeat%20group%204_inner" transform="translate(105.219 -57.4539) rotate(32.7273)"/>
+<use xlink:href="#Repeat%20group%204_inner" transform="translate(224.796 -48.9017) rotate(65.4545)"/>
+<use xlink:href="#Repeat%20group%204_inner" transform="translate(320.768 22.9414) rotate(98.1818)"/>
+<use xlink:href="#Repeat%20group%204_inner" transform="translate(362.663 135.266) rotate(130.909)"/>
+<use xlink:href="#Repeat%20group%204_inner" transform="translate(337.18 252.409) rotate(163.636)"/>
+<use xlink:href="#Repeat%20group%204_inner" transform="translate(252.41 337.179) rotate(-163.636)"/>
+<use xlink:href="#Repeat%20group%204_inner" transform="translate(135.267 362.662) rotate(-130.909)"/>
+<use xlink:href="#Repeat%20group%204_inner" transform="translate(22.9421 320.768) rotate(-98.1818)"/>
+<use xlink:href="#Repeat%20group%204_inner" transform="translate(-48.9012 224.797) rotate(-65.4546)"/>
+<use xlink:href="#Repeat%20group%204_inner" transform="translate(-57.4537 105.219) rotate(-32.7273)"/>
+<path d="M150.542 111.842C154.885 111.842 158.773 113.791 161.381 116.861C165.295 115.909 169.587 116.619 173.102 119.173C176.617 121.726 178.616 125.588 178.921 129.605C182.647 131.136 185.703 134.232 187.046 138.364C188.388 142.496 187.735 146.796 185.621 150.225C187.736 153.654 188.388 157.954 187.046 162.086C185.703 166.217 182.647 169.313 178.921 170.844C178.616 174.861 176.617 178.724 173.102 181.277C169.587 183.831 165.295 184.539 161.38 183.587C158.772 186.657 154.885 188.607 150.541 188.607C146.196 188.607 142.308 186.657 139.7 183.586C135.786 184.537 131.495 183.83 127.98 181.276C124.466 178.723 122.465 174.86 122.161 170.843C118.435 169.312 115.379 166.216 114.037 162.085C112.695 157.954 113.346 153.653 115.461 150.224C113.346 146.795 112.696 142.495 114.038 138.363C115.38 134.232 118.435 131.135 122.162 129.604C122.467 125.588 124.467 121.725 127.981 119.172C131.496 116.619 135.787 115.91 139.702 116.861C142.309 113.791 146.198 111.842 150.542 111.842Z" fill="#46246F"/>
+</svg>

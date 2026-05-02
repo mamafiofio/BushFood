@@ -25,7 +25,9 @@ export function IPhone14Frame({ children, label }: IPhone14FrameProps) {
       role="region"
       aria-label={label ?? "Phone preview, iPhone 14 size"}
     >
-      <div className="flex h-full min-h-0 flex-col overflow-y-auto bg-hunt-bg">{children}</div>
+      <div className="flex h-full min-h-0 flex-col overflow-x-hidden overflow-y-auto rounded-[length:var(--radius-device-shell)] bg-hunt-bg">
+        {children}
+      </div>
     </div>
   );
 }
