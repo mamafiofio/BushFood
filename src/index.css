@@ -36,8 +36,8 @@
   --font-slab: "Roboto Slab", Georgia, "Times New Roman", serif;
   --font-sans: var(--font-slab);
 
-  /* H1 — welcome + homescreen greeting */
-  --text-hunt-h1: 44px;
+  /* H1 — welcome + homescreen greeting (scales down on very narrow viewports) */
+  --text-hunt-h1: clamp(1.75rem, 0.35rem + 5.5vw, 2.75rem);
   --text-hunt-h1--line-height: 1.12;
   --tracking-hunt-h1: 0.01em;
 
@@ -104,7 +104,7 @@
 
   --min-height-hunt-button: 65px;
   --size-hunt-shape: 3rem;
-  /* ~175px circles at 390 logical width */
+  /* ~175px circles at 390 logical width — grid + min-w-0 shrink tiles on narrower viewports */
   --size-hunt-plant-tile: 10.875rem;
   /* Welcome marquee row — each tile */
   --size-hunt-welcome-marquee-tile: 130px;
@@ -159,6 +159,17 @@
  * ============================================================================= */
 
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
+
+  #root {
+    display: flex;
+    min-height: 100dvh;
+    min-width: 0;
+    flex-direction: column;
+  }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--color-hunt-scrollbar-thumb) transparent;
