@@ -1,46 +1,21 @@
-# Tailwind Tokens — React pricing app
+# Bush Food — museum plant hunt
 
-A small React app that uses **design tokens** with Tailwind CSS. The UI is driven from a single place (`src/index.css`), so designers can change colors and typography without touching component code.
+A **mobile-first React** experience for a museum-style “foraging” visit: visitors learn about **Victorian edible native plants**, open **found** sheets from the home grid, and use the **camera** in the browser (marker recognition is not wired yet). The UI is framed in a phone shell for demos; the layout targets small viewports and touch.
+
+This project is meant to ship as a **Progressive Web App (PWA)**, not as a native app in the App Store or Google Play. For a single-visit museum flow, that is a good fit:
+
+- **No install gate** — People open a URL or scan a **QR code** at the entrance; nothing to download from a store.
+- **No accounts** — Everything can stay in the **browser session** (simple, privacy-friendly, low friction).
+- **Camera in the web** — `getUserMedia` works on modern **iOS and Android** browsers for scanning markers or previews.
+- **Same codebase everywhere** — One deployable site avoids store review, versioning split, and “which app?” confusion at the door.
+
+A native app would add cost and barriers (accounts, installs, updates) without much upside for a short, on-site experience.
+
+**Stack:** React 18, TypeScript, Vite 6, Tailwind CSS v4 (`@tailwindcss/vite`).
 
 ---
 
-## For designers
-
-### Where the design lives
-
-All visual design is controlled from **one file**: **`src/index.css`**.
-
-That file defines **design tokens** in three layers:
-
-| Layer | Purpose | Example |
-|-------|--------|--------|
-| **Primitive** | Raw palette values (hex, rgba) | `--color-cream-50`, `--color-ink` |
-| **Semantic** | Purpose-based names used across the app | `--color-surface`, `--color-text-primary`, `--color-card` |
-| **Component** | Tokens for specific UI elements | `--color-btn-primary`, `--color-btn-secondary` |
-
-**Change a primitive** (e.g. `--color-cream-50`) and every semantic and component token that uses it updates everywhere — cards, buttons, text, backgrounds.
-
-### How tokens become classes
-
-Tailwind turns each token into utility classes automatically. The naming convention is the mapping:
-
-- **`--color-{name}`** → use as **`bg-{name}`** (background), **`text-{name}`** (text color), **`border-{name}`**
-- **`--font-{name}`** → use as **`font-{name}`**
-
-Examples:
-
-- `--color-card` → `bg-card` (card background)
-- `--color-text-primary` → `text-text-primary` (main text)
-- `--color-btn-primary` → `bg-btn-primary` (primary button)
-
-So when you add or rename a token in `@theme` in **`src/index.css`**, those classes are available everywhere. No extra config.
-
-### Quick reference for this project
-
-- **`src/index.css`** — Edit tokens here. Primitives at the top, then semantic, then component. Comments explain each block.
-- **`src/tailwind-reference.css`** — Reference only (not imported). Lists the Tailwind classes used in the app and which ones map to tokens, so you can see token → class at a glance.
-
-### Running the app
+## Run locally
 
 From the project root:
 
@@ -49,42 +24,72 @@ npm install
 npm run dev
 ```
 
-Open the URL shown in the terminal to see the Pricing page. Change a token in `src/index.css`, save, and the app updates live.
+Open the URL Vite prints (usually `http://localhost:5173`). Edit files under `src/` and the page hot-reloads.
+
+Other scripts:
+
+| Command | Purpose |
+|--------|---------|
+| `npm run build` | Production bundle → **`dist/`** at the repo root (not inside `src/`) |
+| `npm run typecheck` | `tsc --noEmit` |
+
+---
+
+## Design tokens (for designers)
+
+Almost all colour, type, spacing, motion, and radii flow from **`src/index.css`** via Tailwind v4’s `@theme` block. Tokens use a **`hunt-*`** prefix (for example `--color-hunt-bg`, `--spacing-hunt-gap`). Utilities follow the same names (`bg-hunt-bg`, `text-hunt-text-heading`, `p-hunt-screen`, and so on).
+
+Change a value in `@theme`, save, and every component that uses the matching utility updates together—no per-component CSS files.
 
 ---
 
 ## Project structure
 
-All application code lives in **`src/`**:
+Vite’s **`root`** is **`src/`**; the HTML entry is **`src/index.html`**.
 
 ```
 src/
-├── index.html          # HTML shell — React mounts into <div id="root">
-├── index.jsx           # Entry point: mounts the app
-├── index.css           # Global styles + design tokens (edit here for design)
-├── tailwind-reference.css   # Class reference for designers (not executed)
-├── App.jsx             # Root component
-├── pages/
-│   └── Pricing.jsx     # Pricing page — plan data and layout
-└── components/
-    ├── PricingCard/
-    │   └── PricingCard.jsx
-    └── Button/
-        └── Button.jsx
+├── index.html              # Document shell, fonts, #root
+├── index.tsx               # React entry — mounts <App />
+├── index.css               # Tailwind import + @theme tokens
+├── App.tsx                 # Device chrome + <MuseumFlow />
+├── components/
+│   ├── device/
+│   │   └── IPhone14Frame.tsx   # Optional presentation frame
+│   └── museum/
+│       ├── MuseumFlow.tsx      # Welcome ↔ home orchestration
+│       ├── MuseumShell.tsx     # Outer chrome / context copy
+│       ├── WelcomeScreen.tsx   # Bush Food intro + name + start
+│       ├── HomeScreen.tsx      # Plant grid, scan UI, camera overlay
+│       ├── PlantFoundSheet.tsx # Bottom sheet + plant detail
+│       └── HuntPrimaryButton.tsx
+├── tokens/
+│   ├── museum.ts             # Motion / shared constants
+│   ├── huntPlantTiles.ts     # Grid plants (ids, labels, art)
+│   ├── huntPlantFoundMedia.ts # Photos + stickers per plant
+│   └── foundPlantCopy.tsx    # Long-form copy in the found sheet
+└── assets/native-plants/   # SVGs, found photos, sticker art
 ```
-
-Components use **Tailwind utility classes** (e.g. `bg-card`, `text-text-primary`) that reference the tokens in `index.css`. There are no separate `.css` files per component.
 
 ---
 
-## Teaching focus (for developers)
+## For developers
 
 | Topic | Where |
 |-------|--------|
-| Entry point | `src/index.jsx` — renders `<App />` |
-| Root component | `src/App.jsx` — renders pages (e.g. `<Pricing />`) |
-| Pages | `src/pages/Pricing.jsx` — assembles components and data |
-| Reusable components | `src/components/PricingCard/`, `src/components/Button/` |
-| Design tokens | `src/index.css` — `@theme` block; Tailwind generates classes from token names |
+| Screen flow | `MuseumFlow.tsx` — welcome phase, then home with `foragerName` |
+| Plant list & assets | `tokens/huntPlantTiles.ts`, `tokens/huntPlantFoundMedia.ts` |
+| Found-sheet content | `tokens/foundPlantCopy.tsx` |
+| Build config | `vite.config.js` — `root: 'src'`, `build.outDir: '../dist'` |
 
-Vite uses **`src`** as the project root (`vite.config.js`); the dev server serves from `src/index.html`.
+`dist/` is listed in **`.gitignore`**; do not commit build output.
+
+---
+
+## Progressive web app
+
+**Today:** the app is a Vite SPA you can host on any static origin. There is **no** `manifest.webmanifest` or service worker yet—add a **Web App Manifest** (name, icons, `display`, theme colour) and optionally a **service worker** (for example via `vite-plugin-pwa`) when you want “Add to Home Screen”, splash behaviour, or offline shell caching.
+
+**Collected plants:** progress (for example stickers after closing a found sheet) is held in **React state only**—there is no `localStorage` or `sessionStorage` yet. A full page reload clears it. That matches a strict “only for this tab session” model. If you want stickers to survive accidental refresh or the same phone coming back later the same day, **`localStorage`** (or `sessionStorage` for tab-scoped persistence) is a small follow-up.
+
+**Not in scope:** App Store / Play Store distribution; this product narrative assumes URL + QR + PWA, not store listings.
