@@ -1,82 +1,116 @@
 @import "tailwindcss";
 
-/*
- * Museum kid treasure hunt — design tokens (Tailwind v4 @theme).
- * Primitives → semantics → utilities (bg-hunt-*, text-hunt-*, etc.).
- * Palette: deep green canvas, lavender headlines, cream body/subhead, coral CTAs, olive secondary.
- */
+/* =============================================================================
+ * BUSH FOOD — GLOBAL STYLES & DESIGN TOKENS
+ * =============================================================================
+ *
+ * This file has five parts, top to bottom:
+ *
+ * 1) @import "tailwindcss"
+ *    Registers Tailwind so utilities like `flex`, `bg-hunt-bg`, etc. exist.
+ *
+ * 2) @theme { … }
+ *    Design tokens only. Tailwind v4 turns each `--name` into utilities
+ *    (`bg-hunt-bg` uses `--color-hunt-bg`). No selectors here — just variables.
+ *    Sections inside @theme: Typography → Motion → Radii → Spacing → Sizes
+ *    → Colour primitives → Colour semantics.
+ *
+ * 3) @layer base { … }
+ *    Global defaults (here: default scrollbar styling for the whole page).
+ *
+ * 4) @layer components { … }
+ *    Named classes used in TSX (e.g. `.welcome-marquee-track`, `.found-sticker-pop`).
+ *    Grouped: layout helpers → welcome marquee → found-sheet scrollbars →
+ *    keyframes → animation classes → reduced-motion overrides.
+ *
+ * 5) @layer utilities { … }
+ *    Small reusable utility classes (here: `.transition-hunt` for hover/focus).
+ *
+ * Palette: deep green canvas, lavender headlines, cream copy, coral CTAs.
+ * ============================================================================= */
 
 @theme {
-  /* Typography — Roboto Slab Regular (400) default; Black (900) via `font-black` on headings */
+  /* ── Typography (families, scale, line-height, tracking) ───────────────── */
+
+  /* Roboto Slab: 400 default body; use `font-black` (900) on big headings */
   --font-slab: "Roboto Slab", Georgia, "Times New Roman", serif;
   --font-sans: var(--font-slab);
-  /** H1 — display / welcome / homescreen greeting */
+
+  /* H1 — welcome + homescreen greeting */
   --text-hunt-h1: 44px;
   --text-hunt-h1--line-height: 1.12;
-  /** H1 kerning — 1% of font size (≈ letter-spacing) */
   --tracking-hunt-h1: 0.01em;
-  /** H2 — 18px semibold (use with `font-semibold` + `text-hunt-text` for beige on canvas) */
+
+  /* H2 — 18px; pair with `font-semibold` + `text-hunt-text` */
   --text-hunt-h2: 18px;
   --text-hunt-h2--line-height: 1.35;
-  /** H3 — 16px bold (Found panel category labels; use with `font-bold` + `text-hunt-text-heading` for lilac) */
+
+  /* H3 — Found sheet category labels; pair with `font-bold` + `text-hunt-text-heading` */
   --text-hunt-h3: 16px;
   --text-hunt-h3--line-height: 1.35;
 
-  /* Motion (reference from components via arbitrary var or utilities) */
+  /* ── Motion (durations & easings — use in CSS animation/transition or TSX) ─ */
+
   --ease-hunt: cubic-bezier(0.42, 0, 0.58, 1);
   --duration-hunt: 200ms;
-  /** Full-screen step cross-fade (welcome ↔ homescreen) */
+
+  /* Full-screen cross-fade: welcome ↔ homescreen */
   --duration-hunt-screen: 420ms;
-  /** Found bottom sheet slide-in */
+
+  /* Found bottom sheet: slide in / fade out */
   --duration-hunt-found-sheet: 480ms;
-  /** Found sheet close — panel + backdrop fade */
   --duration-hunt-found-sheet-out: 300ms;
-  /** Light overshoot on sheet enter */
   --ease-hunt-found-sheet: cubic-bezier(0.34, 1.12, 0.64, 1);
-  /** Close fade — smooth ease-out */
   --ease-hunt-found-sheet-out: cubic-bezier(0.4, 0, 0.2, 1);
-  /** Found sticker pop-in (after sheet enter finishes) — ease-in-out + overshoot in keyframes */
+
+  /* Sticker pop on homescreen after found sheet (keyframes use overshoot) */
   --duration-hunt-found-sticker: 620ms;
   --ease-hunt-found-sticker: ease-in-out;
-  /** Welcome plant marquee — one full loop (duplicated track, translate -50%) */
+
+  /* Welcome plant marquee — one loop; track is duplicated, translate -50% */
   --duration-hunt-welcome-marquee: 42s;
   --ease-hunt-welcome-marquee: linear;
+
+  /* ── Radii ─────────────────────────────────────────────────────────────── */
+
   --radius-button: 1rem;
   --radius-field: 0.75rem;
   --radius-device-shell: 2.75rem;
+
+  /* ── Spacing (padding, gaps, insets — rem/px as defined) ─────────────────── */
+
   --spacing-hunt-screen: 1.25rem;
   --spacing-hunt-gap: 1.5rem;
-  /** Tighter vertical stack (e.g. welcome heading + intro) — 16px */
   --spacing-hunt-stack: 1rem;
   --spacing-hunt-tight: 0.75rem;
-  /** Half of hunt-tight — label-to-title gap on Found screen */
   --spacing-hunt-tight-half: 0.375rem;
-  /** Homescreen subhead horizontal inset — 32px (Spacing/M_32) */
   --spacing-hunt-subhead-inline: 2rem;
-  /** Welcome screen: space above “Welcome to Bush Food” headline */
   --spacing-hunt-welcome-title-pt: 140px;
   --spacing-hunt-button-x: 1.25rem;
   --spacing-hunt-button-y: 0.625rem;
-  /** Minimum tap target height (approx. 44px) */
   --spacing-hunt-touch: 2.75rem;
-  /**
-   * Found sheet: space from panel top to icon hero — clears absolute close (top-hunt-gap + touch height) + 24px.
-   */
+  --spacing-hunt-field-x: 1rem;
+
+  /* Found sheet only */
   --spacing-hunt-found-hero-pt: calc(
     var(--spacing-hunt-gap) + var(--spacing-hunt-touch) + 24px
   );
-  /** Found sheet: vertical padding around 16:9 media slot — 36px (Spacing/M_36) */
   --spacing-hunt-found-media-y: 36px;
-  /** Found sheet: category title → body — 8px (Spacing/XS_8) */
   --spacing-hunt-found-category-to-body: 8px;
-  /** Found sheet: between sections — 24px (Spacing/S_24) */
   --spacing-hunt-found-section-gap: 24px;
-  /** Found sheet: gap below close before scrollbar thumb — 24px (Spacing/S_24) */
   --spacing-hunt-found-scrollbar-after-close: 24px;
-  --spacing-hunt-field-x: 1rem;
-  --min-height-hunt-button: 65px;
 
-  /* Primitives */
+  /* ── Sizes & min heights ─────────────────────────────────────────────────── */
+
+  --min-height-hunt-button: 65px;
+  --size-hunt-shape: 3rem;
+  /* ~175px circles at 390 logical width */
+  --size-hunt-plant-tile: 10.875rem;
+  /* Welcome marquee row — each tile */
+  --size-hunt-welcome-marquee-tile: 130px;
+
+  /* ── Colour primitives (raw palette — prefer semantics in components) ───── */
+
   --color-hunt-surface: #083429;
   --color-hunt-headline: #dcaeff;
   --color-hunt-body: #faf8f3;
@@ -90,15 +124,16 @@
   --color-hunt-dark-surface-elevated: color-mix(in srgb, #083429 88%, #625312 12%);
   --color-hunt-chrome: #083429;
 
-  /* Semantics */
+  /* ── Colour semantics (what UI means — map primitives → roles) ──────────── */
+
   --color-hunt-bg: var(--color-hunt-surface);
   --color-hunt-text: var(--color-hunt-body);
   --color-hunt-text-subhead: #faf8f3;
-  /** WCAG AA on #083429 (~5:1+) — secondary labels on dark canvas */
+  /* AA on dark canvas — secondary labels */
   --color-hunt-text-muted-on-dark: #decfae;
-  /** WCAG AA on #faf8f3 field (~4.5:1+) — placeholders */
+  /* AA on cream field — placeholders */
   --color-hunt-text-placeholder: #475951;
-  /** Muted on dark (supporting lines); ~6:1 on #083429 */
+  /* Supporting copy on dark */
   --color-hunt-text-soft: #e6e2d9;
   --color-hunt-text-heading: var(--color-hunt-headline);
   --color-hunt-text-on-dark: var(--color-hunt-body-inverse);
@@ -112,17 +147,16 @@
   --color-hunt-field-bg: #faf8f3;
   --color-hunt-field-fg: #083429;
   --color-hunt-field-border: color-mix(in srgb, var(--color-hunt-secondary-dark) 55%, #faf8f3 45%);
-  /** Bottom-sheet secondary CTA (wireframe “Add to collection”) — AA with dark label */
+  /* Found sheet secondary CTA (“Add to collection”) */
   --color-hunt-sheet-cta-bg: #dadada;
   --color-hunt-focus-ring: var(--color-hunt-headline);
-  --size-hunt-shape: 3rem;
-  /** ~175px plant circles at 390 logical width */
-  --size-hunt-plant-tile: 10.875rem;
-  /** Welcome marquee plant art — 130px square */
-  --size-hunt-welcome-marquee-tile: 130px;
-  /** Scrollbars — white thumb at 20% opacity, transparent track */
+  /* Scrollbar thumb (also used in component scroll regions) */
   --color-hunt-scrollbar-thumb: rgb(255 255 255 / 0.2);
 }
+
+/* =============================================================================
+ * BASE — browser-wide defaults (not utilities; applies to elements)
+ * ============================================================================= */
 
 @layer base {
   * {
@@ -149,12 +183,20 @@
   }
 }
 
+/* =============================================================================
+ * COMPONENTS — named classes referenced from TSX (marquee, sheet, sticker)
+ * ============================================================================= */
+
 @layer components {
+  /* --- Layout helper --- */
+
   .hunt-shape {
     width: var(--size-hunt-shape);
     height: var(--size-hunt-shape);
     border-radius: 9999px;
   }
+
+  /* --- Welcome screen: infinite horizontal marquee (plant icons) --- */
 
   @keyframes hunt-welcome-marquee {
     from {
@@ -165,9 +207,6 @@
     }
   }
 
-  /**
-   * Welcome screen: duplicated icon row; -50% = one copy width for seamless loop (right → left).
-   */
   .welcome-marquee-track {
     display: flex;
     width: max-content;
@@ -175,16 +214,8 @@
       infinite;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .welcome-marquee-track {
-      animation: none;
-      transform: translate3d(0, 0, 0);
-    }
-  }
+  /* --- Found sheet: scrollable body — WebKit track inset clears the close button --- */
 
-  /**
-   * Found sheet scroll: WebKit scrollbar track inset (thumb 20% white); clears close + corner.
-   */
   .found-sheet-scroll {
     scrollbar-width: thin;
     scrollbar-color: var(--color-hunt-scrollbar-thumb) transparent;
@@ -194,7 +225,6 @@
     width: 10px;
   }
 
-  /* Thumb starts below the absolute close (top-hunt-gap + touch) + gap */
   .found-sheet-scroll::-webkit-scrollbar-track {
     background: transparent;
     margin-top: calc(
@@ -211,6 +241,8 @@
   .found-sheet-scroll::-webkit-scrollbar-corner {
     background: transparent;
   }
+
+  /* --- Found sheet: keyframes (backdrop, panel slide, sticker pop) --- */
 
   @keyframes hunt-found-backdrop-in {
     from {
@@ -248,6 +280,32 @@
     }
   }
 
+  @keyframes hunt-found-sticker-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.18);
+    }
+    38% {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+    58% {
+      transform: scale(1.34);
+    }
+    78% {
+      transform: scale(1.06);
+    }
+    92% {
+      transform: scale(1.24);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  /* --- Found sheet: classes that attach the keyframes (TSX toggles these) --- */
+
   .found-sheet-backdrop-enter {
     animation: hunt-found-backdrop-in var(--duration-hunt-screen) var(--ease-hunt) both;
   }
@@ -266,37 +324,19 @@
       both forwards;
   }
 
-  @keyframes hunt-found-sticker-pop {
-    0% {
-      opacity: 0;
-      transform: scale(0.18);
-    }
-    38% {
-      opacity: 1;
-      transform: scale(1.08);
-    }
-    /* Overshoot — visibly larger than final 1.2 before settling */
-    58% {
-      transform: scale(1.34);
-    }
-    78% {
-      transform: scale(1.06);
-    }
-    92% {
-      transform: scale(1.24);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1.2);
-    }
-  }
-
   .found-sticker-pop {
     animation: hunt-found-sticker-pop var(--duration-hunt-found-sticker) var(--ease-hunt-found-sticker) both
       forwards;
   }
 
+  /* --- Reduced motion: strip marquee + sheet/sticker animations --- */
+
   @media (prefers-reduced-motion: reduce) {
+    .welcome-marquee-track {
+      animation: none;
+      transform: translate3d(0, 0, 0);
+    }
+
     .found-sheet-backdrop-enter,
     .found-sheet-backdrop-exit,
     .found-sheet-panel-enter,
@@ -311,6 +351,10 @@
     }
   }
 }
+
+/* =============================================================================
+ * UTILITIES — extra Tailwind-friendly classes (use alongside utilities in TSX)
+ * ============================================================================= */
 
 @layer utilities {
   .transition-hunt {

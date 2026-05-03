@@ -14,4 +14,9 @@ export default defineConfig({
     tailwindcss(),   // Scans your JSX for Tailwind classes and builds only the CSS you actually use
   ],
   root: 'src',
+  build: {
+    // Keep production bundles out of `src/` (source tree stays clean).
+    outDir: '../dist',
+    emptyOutDir: true,
+  },
 });
