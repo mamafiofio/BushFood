@@ -4,7 +4,6 @@ import { createPortal } from "react-dom";
 import { FOUND_PLANT_COPY } from "../../tokens/foundPlantCopy";
 import { HUNT_PLANT_FOUND_MEDIA } from "../../tokens/huntPlantFoundMedia";
 import { HUNT_PLANT_TILES, type HuntPlantId } from "../../tokens/huntPlantTiles";
-import { MUSEUM_DEVICE } from "../../tokens/museum";
 import { HuntPrimaryButton } from "./HuntPrimaryButton";
 
 type PlantFoundSheetProps = {
@@ -14,8 +13,6 @@ type PlantFoundSheetProps = {
   onDismiss: (id: HuntPlantId | null) => void;
   onAddToCollection: () => void;
 };
-
-const panelMax = `${MUSEUM_DEVICE.widthPx}px`;
 
 const SHEET_IN_ANIMATION = "hunt-found-sheet-in";
 const SHEET_OUT_ANIMATION = "hunt-found-sheet-out";
@@ -152,21 +149,20 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
         }
         onClick={startExit}
       />
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[370] flex justify-center px-hunt-screen pt-hunt-gap">
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[370] flex w-full min-w-0 justify-center px-hunt-screen pt-hunt-gap">
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
           className={
             exiting
-              ? "found-sheet-panel-exit pointer-events-auto w-full"
-              : "found-sheet-panel-enter pointer-events-auto w-full"
+              ? "found-sheet-panel-exit pointer-events-auto w-full min-w-0 max-w-md"
+              : "found-sheet-panel-enter pointer-events-auto w-full min-w-0 max-w-md"
           }
-          style={{ maxWidth: panelMax }}
           onAnimationEnd={onSheetMotionAnimationEnd}
         >
           <div className="pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]">
-            <div className="relative flex min-h-0 max-h-[min(90dvh,844px)] w-full flex-col overflow-hidden rounded-t-[length:var(--radius-device-shell)] bg-hunt-bg text-left shadow-lg ring-1 ring-hunt-chip-border">
+            <div className="relative flex min-h-0 max-h-[min(90dvh,100svh)] w-full min-w-0 flex-col overflow-x-hidden overflow-y-hidden rounded-t-[length:var(--radius-device-shell)] bg-hunt-bg text-left shadow-lg ring-1 ring-hunt-chip-border">
               <button
                 type="button"
                 className="group absolute right-hunt-screen top-hunt-gap z-30 inline-flex size-hunt-touch items-center justify-center rounded-[length:var(--radius-field)] bg-hunt-bg text-hunt-accent-warm ring-1 ring-hunt-chip-border transition-hunt hover:bg-hunt-dark-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hunt-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-hunt-bg"
@@ -180,9 +176,9 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
                 />
               </button>
 
-              <div className="found-sheet-scroll min-h-0 w-full flex-1 overflow-y-auto overscroll-y-contain">
-                <div className="flex w-full flex-col items-center px-hunt-screen pt-hunt-found-hero-pt">
-                  <div className="relative size-[length:var(--size-hunt-plant-tile)] shrink-0">
+              <div className="found-sheet-scroll min-h-0 w-full min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain">
+                <div className="flex w-full min-w-0 flex-col items-center px-hunt-screen pt-hunt-found-hero-pt">
+                  <div className="relative mx-auto aspect-square w-full max-w-[min(100%,var(--size-hunt-plant-tile))] shrink-0">
                     <div className="flex size-full items-center justify-center overflow-hidden rounded-full">
                       <img
                         src={heroSrc}
@@ -204,7 +200,7 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
                   </div>
                 </div>
 
-                <div className="px-hunt-screen pt-hunt-stack text-center">
+                <div className="min-w-0 px-hunt-screen pt-hunt-stack text-center">
                   <p className="text-base font-bold leading-normal text-hunt-text-heading">You found</p>
                   <h1
                     id={titleId}
@@ -214,8 +210,8 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
                   </h1>
                 </div>
 
-                <div className="w-full px-hunt-screen py-hunt-found-media-y">
-                  <div className="aspect-video w-full overflow-hidden rounded-[length:var(--radius-field)] bg-white/5 ring-1 ring-hunt-chip-border">
+                <div className="w-full min-w-0 px-hunt-screen py-hunt-found-media-y">
+                  <div className="aspect-video w-full min-w-0 overflow-hidden rounded-[length:var(--radius-field)] bg-white/5 ring-1 ring-hunt-chip-border">
                     <img
                       src={media.photoSrc}
                       alt=""
@@ -224,22 +220,22 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
                   </div>
                 </div>
 
-                <div className="px-hunt-screen pb-hunt-gap">
-                  <div className="flex flex-col gap-hunt-found-section-gap text-left text-base leading-relaxed">
+                <div className="min-w-0 px-hunt-screen pb-hunt-gap">
+                  <div className="flex min-w-0 flex-col gap-hunt-found-section-gap text-left text-base leading-relaxed">
                     {copy.sections.map((section) => (
-                      <section key={section.title}>
+                      <section key={section.title} className="min-w-0">
                         <h3 className="text-pretty text-hunt-h3 font-bold text-hunt-text-heading">{section.title}</h3>
-                        <div className="mt-hunt-found-category-to-body text-pretty font-normal text-hunt-text">
+                        <div className="mt-hunt-found-category-to-body max-w-full break-words text-pretty font-normal text-hunt-text">
                           {section.body}
                         </div>
                       </section>
                     ))}
-                    <section>
+                    <section className="min-w-0">
                       <a
                         href={copy.wikipediaUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex rounded-sm text-pretty font-bold text-hunt-text-heading underline decoration-hunt-accent-warm underline-offset-2 transition-hunt hover:decoration-hunt-action-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hunt-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-hunt-bg"
+                        className="inline-flex max-w-full break-words rounded-sm text-pretty font-bold text-hunt-text-heading underline decoration-hunt-accent-warm underline-offset-2 transition-hunt hover:decoration-hunt-action-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hunt-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-hunt-bg"
                       >
                         View on Wikipedia
                       </a>
@@ -248,7 +244,7 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
                 </div>
               </div>
 
-              <div className="shrink-0 px-hunt-screen pt-hunt-gap pb-hunt-screen">
+              <div className="min-w-0 shrink-0 px-hunt-screen pt-hunt-gap pb-hunt-screen">
                 <HuntPrimaryButton type="button" onClick={onAddToCollection}>
                   Add to collection
                 </HuntPrimaryButton>

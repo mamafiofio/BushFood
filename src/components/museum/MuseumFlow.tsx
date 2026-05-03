@@ -16,12 +16,12 @@ export function MuseumFlow() {
   const [foragerName, setForagerName] = useState("");
 
   return (
-    <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-hunt-bg">
+    <div className="relative flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden bg-hunt-bg">
       <div
         className={
           phase === "welcome"
-            ? "pointer-events-auto absolute inset-0 z-10 flex min-h-0 flex-col opacity-100"
-            : "pointer-events-none absolute inset-0 z-0 flex min-h-0 flex-col opacity-0"
+            ? "pointer-events-auto absolute inset-0 z-10 flex min-h-0 min-w-0 flex-col overflow-x-hidden opacity-100"
+            : "pointer-events-none absolute inset-0 z-0 flex min-h-0 min-w-0 flex-col overflow-x-hidden opacity-0"
         }
         style={{
           ...screenTransitionStyle,
@@ -40,8 +40,8 @@ export function MuseumFlow() {
       <div
         className={
           phase === "home"
-            ? "pointer-events-auto absolute inset-0 z-10 flex min-h-0 flex-col opacity-100"
-            : "pointer-events-none absolute inset-0 z-0 flex min-h-0 flex-col opacity-0"
+            ? "pointer-events-auto absolute inset-0 z-10 flex min-h-0 min-w-0 flex-col overflow-x-hidden opacity-100"
+            : "pointer-events-none absolute inset-0 z-0 flex min-h-0 min-w-0 flex-col overflow-x-hidden opacity-0"
         }
         style={{
           ...screenTransitionStyle,
