@@ -36,8 +36,8 @@
   --font-slab: "Roboto Slab", Georgia, "Times New Roman", serif;
   --font-sans: var(--font-slab);
 
-  /* H1 — welcome + homescreen greeting (scales down on very narrow viewports) */
-  --text-hunt-h1: clamp(1.75rem, 0.35rem + 5.5vw, 2.75rem);
+  /* H1 — welcome + homescreen greeting (fixed 44px / iPhone 14 logical — matches in-browser preview) */
+  --text-hunt-h1: 44px;
   --text-hunt-h1--line-height: 1.12;
   --tracking-hunt-h1: 0.01em;
 

@@ -1,30 +1,18 @@
-<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="300" height="300" rx="150" fill="#DCAEFF"/>
-<g id="Repeat group 1_inner" data-figma-trr="r11u1.3-0f">
+<g id="murnong-petal-unit" data-figma-trr="r11u1.3-0f">
 <path d="M136.329 47.2852C143.165 47.2852 150 56.3992 150 56.3992C150 56.3992 156.835 47.2852 163.671 47.2852C170.507 47.2852 161.848 136.602 161.848 136.602H138.152C138.152 136.602 129.494 47.2852 136.329 47.2852Z" fill="#FFFC4F"/>
 </g>
-<use xlink:href="#Repeat%20group%201_inner" transform="translate(104.908 -57.2842) rotate(32.7273)"/>
-<use xlink:href="#Repeat%20group%201_inner" transform="translate(224.133 -48.7571) rotate(65.4545)"/>
-<use xlink:href="#Repeat%20group%201_inner" transform="translate(319.82 22.874) rotate(98.1818)"/>
-<use xlink:href="#Repeat%20group%201_inner" transform="translate(361.592 134.867) rotate(130.909)"/>
-<use xlink:href="#Repeat%20group%201_inner" transform="translate(336.184 251.664) rotate(163.636)"/>
-<use xlink:href="#Repeat%20group%201_inner" transform="translate(251.664 336.184) rotate(-163.636)"/>
-<use xlink:href="#Repeat%20group%201_inner" transform="translate(134.867 361.592) rotate(-130.909)"/>
-<use xlink:href="#Repeat%20group%201_inner" transform="translate(22.8741 319.82) rotate(-98.1818)"/>
-<use xlink:href="#Repeat%20group%201_inner" transform="translate(-48.757 224.133) rotate(-65.4546)"/>
-<use xlink:href="#Repeat%20group%201_inner" transform="translate(-57.2842 104.908) rotate(-32.7273)"/>
-<g id="Repeat group 2_inner" data-figma-trr="r11u1.3-0f">
-<path d="M136.329 47.2852C143.165 47.2852 150 56.3992 150 56.3992C150 56.3992 156.835 47.2852 163.671 47.2852C170.507 47.2852 161.848 136.602 161.848 136.602H138.152C138.152 136.602 129.494 47.2852 136.329 47.2852Z" fill="#FFFC4F"/>
-</g>
-<use xlink:href="#Repeat%20group%202_inner" transform="translate(104.908 -57.2842) rotate(32.7273)"/>
-<use xlink:href="#Repeat%20group%202_inner" transform="translate(224.133 -48.7571) rotate(65.4545)"/>
-<use xlink:href="#Repeat%20group%202_inner" transform="translate(319.82 22.874) rotate(98.1818)"/>
-<use xlink:href="#Repeat%20group%202_inner" transform="translate(361.592 134.867) rotate(130.909)"/>
-<use xlink:href="#Repeat%20group%202_inner" transform="translate(336.184 251.664) rotate(163.636)"/>
-<use xlink:href="#Repeat%20group%202_inner" transform="translate(251.664 336.184) rotate(-163.636)"/>
-<use xlink:href="#Repeat%20group%202_inner" transform="translate(134.867 361.592) rotate(-130.909)"/>
-<use xlink:href="#Repeat%20group%202_inner" transform="translate(22.8741 319.82) rotate(-98.1818)"/>
-<use xlink:href="#Repeat%20group%202_inner" transform="translate(-48.757 224.133) rotate(-65.4546)"/>
-<use xlink:href="#Repeat%20group%202_inner" transform="translate(-57.2842 104.908) rotate(-32.7273)"/>
+<use href="#murnong-petal-unit" transform="translate(104.908 -57.2842) rotate(32.7273)"/>
+<use href="#murnong-petal-unit" transform="translate(224.133 -48.7571) rotate(65.4545)"/>
+<use href="#murnong-petal-unit" transform="translate(319.82 22.874) rotate(98.1818)"/>
+<use href="#murnong-petal-unit" transform="translate(361.592 134.867) rotate(130.909)"/>
+<use href="#murnong-petal-unit" transform="translate(336.184 251.664) rotate(163.636)"/>
+<use href="#murnong-petal-unit" transform="translate(251.664 336.184) rotate(-163.636)"/>
+<use href="#murnong-petal-unit" transform="translate(134.867 361.592) rotate(-130.909)"/>
+<use href="#murnong-petal-unit" transform="translate(22.8741 319.82) rotate(-98.1818)"/>
+<use href="#murnong-petal-unit" transform="translate(-48.757 224.133) rotate(-65.4546)"/>
+<use href="#murnong-petal-unit" transform="translate(-57.2842 104.908) rotate(-32.7273)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M163.671 47.2852C167.471 47.2852 166.481 74.8941 164.854 99.4121C176.74 77.9063 190.834 54.1446 194.031 56.1992C199.772 59.8883 200.602 71.2179 200.605 71.2578C200.648 71.2415 211.293 67.2938 217.032 70.9814C220.23 73.0362 204.469 95.7275 189.845 115.474C211.471 103.808 236.175 91.4385 237.754 94.8955C240.593 101.113 235.143 111.117 235.143 111.117C235.215 111.133 246.282 113.569 249.112 119.767C250.689 123.224 225.162 133.792 202.185 142.496C226.685 144.374 254.156 147.324 253.615 151.086C252.646 157.827 242.721 163.28 242.648 163.32C242.648 163.32 250.696 171.383 249.724 178.149C249.183 181.911 221.994 177.002 197.957 171.901C217.553 186.727 239.067 204.059 236.579 206.932C232.119 212.079 220.82 211.302 220.739 211.296C220.758 211.382 223.133 222.45 218.674 227.596C216.184 230.467 195.968 211.638 178.504 194.353C186.973 217.419 195.701 243.63 192.056 244.702C185.497 246.628 176.37 239.81 176.37 239.81C176.344 239.879 172.358 250.485 165.821 252.405C162.175 253.476 155.346 226.706 150 202.722C144.654 226.705 137.826 253.474 134.18 252.405C127.639 250.485 123.652 239.869 123.63 239.81C123.63 239.81 114.503 246.628 107.944 244.702C104.299 243.629 113.026 217.418 121.495 194.353C104.031 211.638 83.815 230.468 81.3262 227.596C76.8613 222.443 79.2496 211.352 79.2617 211.296C79.2617 211.296 67.8974 212.098 63.4209 206.932C60.9332 204.059 82.4469 186.727 102.042 171.901C78.0049 177.002 50.8173 181.911 50.2764 178.149C49.3078 171.411 57.2875 163.386 57.3516 163.321C57.3172 163.302 47.3559 157.84 46.3848 151.086C45.8448 147.324 73.313 144.374 97.8125 142.496C74.835 133.792 49.3108 123.224 50.8877 119.767C53.719 113.567 64.7928 111.131 64.8574 111.117C64.8574 111.117 59.4068 101.114 62.2461 94.8955C63.8249 91.4384 88.528 103.808 110.154 115.474C95.5297 95.7276 79.7707 73.0361 82.9678 70.9814C88.7097 67.292 99.3638 71.246 99.3955 71.2578C99.3994 71.2042 100.232 59.8874 105.969 56.2002C109.166 54.1455 123.259 77.9064 135.146 99.4121C133.518 74.8941 132.529 47.2852 136.329 47.2852C143.165 47.2853 150 56.3994 150 56.3994C150 56.3994 156.835 47.2852 163.671 47.2852ZM139.448 140.854L136.179 148.014L137.298 155.8L142.45 161.746L149.999 163.963L157.547 161.746L162.7 155.8L163.82 148.013L160.552 140.854L153.935 136.603H146.065L139.448 140.854Z" fill="#FFFC4F"/>
 <circle cx="150.355" cy="149.444" r="15.0381" fill="#FFC74F"/>
 </svg>
