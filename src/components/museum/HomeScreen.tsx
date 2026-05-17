@@ -1,12 +1,15 @@
 import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { HUNT_PLANT_FOUND_MEDIA } from "../../tokens/huntPlantFoundMedia";
 import { HUNT_PLANT_TILES, type HuntPlantId } from "../../tokens/huntPlantTiles";
 import { HuntPrimaryButton } from "./HuntPrimaryButton";
 import { PlantFoundSheet } from "./PlantFoundSheet";
+import { ScanCameraOverlay } from "./ScanCameraOverlay";
 
 type HomeScreenProps = {
   foragerName: string;
+  /** True when the homescreen is the visible phase (welcome → home). */
+  isActive?: boolean;
 };
 
 const COLLECTED_STORAGE_KEY = "bushfood-collected";
@@ -63,25 +66,6 @@ async function pickPreferredQrCameraDeviceId(): Promise<string | null> {
 
 const VALID_QR_PLANT_IDS = new Set<HuntPlantId>(HUNT_PLANT_TILES.map((t) => t.id));
 
-function loadCollectedPlantsFromStorage(): Set<HuntPlantId> {
-  if (typeof window === "undefined") return new Set();
-  try {
-    const raw = window.localStorage.getItem(COLLECTED_STORAGE_KEY);
-    if (raw == null || raw === "") return new Set();
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return new Set();
-    const next = new Set<HuntPlantId>();
-    for (const item of parsed) {
-      if (typeof item === "string" && VALID_QR_PLANT_IDS.has(item as HuntPlantId)) {
-        next.add(item as HuntPlantId);
-      }
-    }
-    return next;
-  } catch {
-    return new Set();
-  }
-}
-
 function parsePlantIdFromDecodedQr(text: string): HuntPlantId | null {
   const trimmed = text.trim();
   if (VALID_QR_PLANT_IDS.has(trimmed as HuntPlantId)) {
@@ -99,13 +83,53 @@ function parsePlantIdFromDecodedQr(text: string): HuntPlantId | null {
   return null;
 }
 
+const HOME_INTRO_LINES = [
+  "Find plant markers in the galleries and scan them",
+  "with your camera.",
+] as const;
+
+function HomeGreeting({ greeting, animated }: { greeting: string; animated: boolean }) {
+  if (!animated) {
+    return (
+      <h1 className="font-black text-balance text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading">
+        {greeting}
+      </h1>
+    );
+  }
+
+  return (
+    <h1 className="font-black text-balance text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading">
+      <span className="sr-only">{greeting}</span>
+      <span aria-hidden className="welcome-title-visual">
+        {[...greeting].map((char, charIndex) => (
+          <span
+            key={charIndex}
+            className="welcome-title-letter"
+            style={{ "--welcome-letter-index": charIndex } as CSSProperties}
+          >
+            {char === " " ? "\u00A0" : char}
+          </span>
+        ))}
+      </span>
+    </h1>
+  );
+}
+
+function getScanViewportAspectRatio(readerElementId: string): number | undefined {
+  const el = document.getElementById(readerElementId);
+  if (el == null) return undefined;
+  const { clientWidth: w, clientHeight: h } = el;
+  if (w <= 0 || h <= 0) return undefined;
+  return w / h;
+}
+
 /**
  * Post-welcome homescreen — plant grid + scan action (Figma `2_Homescreen`).
  * PlantFoundSheet opens only after a valid museum QR scan (Html5Qrcode). Tiles are decorative;
- * stickers reflect plants added to the collection (localStorage `bushfood-collected`).
+ * stickers reflect plants added via QR scan + “Add to collection” (this session only).
  */
-export function HomeScreen({ foragerName }: HomeScreenProps) {
-  const greeting = foragerName.trim() ? `Hi ${foragerName.trim()}` : "Hi there";
+export function HomeScreen({ foragerName, isActive = false }: HomeScreenProps) {
+  const greeting = foragerName.trim() ? `Hi ${foragerName.trim()}` : "Hi forager";
   const matchedThisSessionRef = useRef(false);
   const foundPlantRef = useRef<HuntPlantId | null>(null);
   /** Serialize Html5Qrcode start/stop so Strict Mode + rapid open/close cannot overlap on the same DOM id. */
@@ -113,7 +137,7 @@ export function HomeScreen({ foragerName }: HomeScreenProps) {
   const activeQrScannerRef = useRef<Html5Qrcode | null>(null);
   const [scanOpen, setScanOpen] = useState(false);
   const [foundPlant, setFoundPlant] = useState<HuntPlantId | null>(null);
-  const [collectedPlants, setCollectedPlants] = useState<Set<HuntPlantId>>(loadCollectedPlantsFromStorage);
+  const [collectedPlants, setCollectedPlants] = useState<Set<HuntPlantId>>(() => new Set());
   const [cameraError, setCameraError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -185,8 +209,10 @@ export function HomeScreen({ foragerName }: HomeScreenProps) {
         const scanner = new Html5Qrcode(QR_SCANNER_ELEMENT_ID);
         activeQrScannerRef.current = scanner;
 
+        const aspectRatio = getScanViewportAspectRatio(QR_SCANNER_ELEMENT_ID);
         const qrConfig = {
           fps: 10,
+          ...(aspectRatio != null ? { aspectRatio } : {}),
           qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
             const m = Math.min(viewfinderWidth, viewfinderHeight);
             const edge = Math.max(120, Math.min(Math.floor(m * 0.72), 300));
@@ -290,53 +316,98 @@ export function HomeScreen({ foragerName }: HomeScreenProps) {
     setScanOpen(false);
   }, []);
 
-  return (
-    <main className="relative flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden bg-hunt-bg text-center">
-      <header className="shrink-0 px-hunt-screen pt-[48px]">
-        <h1 className="font-black text-balance text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading">
-          {greeting}
-        </h1>
-        <p className="mx-auto mt-hunt-tight max-w-full text-pretty text-base font-normal leading-relaxed text-hunt-text-subhead sm:mx-hunt-subhead-inline">
-          Find plant markers in the galleries and scan them with your camera.
-        </p>
-      </header>
+  const showHeaderEntrance = isActive;
+  const showPlantEntrance = foragerName.trim().length > 0;
+  const homeHeaderEntranceStyle = {
+    "--welcome-title-letter-count": [...greeting].length,
+  } as CSSProperties;
+  const leftColumnPlants = HUNT_PLANT_TILES.filter((_, index) => index % 2 === 0);
+  const rightColumnPlants = HUNT_PLANT_TILES.filter((_, index) => index % 2 === 1);
 
-      <div className="mt-hunt-stack min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto bg-hunt-bg px-hunt-screen py-hunt-gap">
-        <ul
-          className="mx-auto grid w-full min-w-0 max-w-md grid-cols-2 justify-items-stretch gap-hunt-gap"
-          role="list"
+  function renderPlantTile(
+    plant: (typeof HUNT_PLANT_TILES)[number],
+    revealIndex: number,
+    column: "left" | "right",
+  ) {
+    const showSticker = collectedPlants.has(plant.id);
+    const stickerSrc = HUNT_PLANT_FOUND_MEDIA[plant.id].stickerSrc;
+    const tileEnterStyle = {
+      "--hunt-plant-tile-enter-index": revealIndex,
+    } as CSSProperties;
+
+    return (
+      <li
+        key={plant.id}
+        className={`relative isolate min-w-0 w-full ${showSticker ? "z-10" : "z-0"}`}
+      >
+        <div
+          role="img"
+          aria-label={plant.label}
+          style={showPlantEntrance ? tileEnterStyle : undefined}
+          className={`relative mx-auto aspect-square w-full max-w-[min(100%,var(--size-hunt-plant-tile))] overflow-visible rounded-full transition-hunt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hunt-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-hunt-bg${showPlantEntrance ? " hunt-plant-tile-enter" : ""}`}
         >
-          {HUNT_PLANT_TILES.map((plant) => {
-            const showSticker = collectedPlants.has(plant.id);
-            const stickerSrc = HUNT_PLANT_FOUND_MEDIA[plant.id].stickerSrc;
-            return (
-              <li key={plant.id} className="min-w-0 w-full">
-                <div
-                  role="img"
-                  aria-label={plant.label}
-                  className="relative mx-auto aspect-square w-full max-w-[min(100%,var(--size-hunt-plant-tile))] overflow-visible rounded-full transition-hunt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hunt-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-hunt-bg"
-                >
-                  <span className="pointer-events-none absolute inset-0 block overflow-hidden rounded-full">
-                    <img src={plant.src} alt="" className="h-full w-full object-contain" />
+          <span className="pointer-events-none absolute inset-0 block overflow-hidden rounded-full">
+            <img src={plant.src} alt="" className="h-full w-full object-contain" draggable={false} />
+          </span>
+          {showSticker ? (
+            <span
+              aria-hidden
+              className={`pointer-events-none absolute right-0 top-0 z-10 block h-auto w-[38%] max-w-[5.75rem] min-w-[4.25rem] origin-top-right rotate-[-15deg]${column === "right" ? " translate-x-[calc(8%-var(--spacing-hunt-stack)+15px)] -translate-y-[calc(8%+20px)]" : " translate-x-[calc(8%+var(--spacing-hunt-stack))] -translate-y-[8%]"}`}
+            >
+              <img
+                src={stickerSrc}
+                alt=""
+                className="found-sticker-pop h-auto w-full select-none"
+                decoding="async"
+              />
+            </span>
+          ) : null}
+        </div>
+      </li>
+    );
+  }
+
+  return (
+    <main className="relative flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden bg-transparent text-center">
+      <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-hunt-screen">
+        <header
+          className={`pt-[48px]${showHeaderEntrance ? " hunt-home-header--enter" : ""}`}
+          style={showHeaderEntrance ? homeHeaderEntranceStyle : undefined}
+        >
+          <HomeGreeting greeting={greeting} animated={showHeaderEntrance} />
+          <p className="mx-auto mt-hunt-tight max-w-full text-pretty text-base font-normal leading-relaxed text-hunt-text-subhead sm:mx-hunt-subhead-inline">
+            {showHeaderEntrance
+              ? HOME_INTRO_LINES.map((line, index) => (
+                  <span
+                    key={line}
+                    className="welcome-screen-intro-line block"
+                    style={{ "--welcome-intro-line-index": index } as CSSProperties}
+                  >
+                    {line}
                   </span>
-                  {showSticker ? (
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute right-0 top-0 z-20 block h-auto w-[38%] max-w-[5.75rem] min-w-[4.25rem] origin-top-right translate-x-[calc(20%+var(--spacing-hunt-gap)-var(--spacing-hunt-stack))] translate-y-[calc(2*var(--spacing-hunt-gap)-2*var(--spacing-hunt-stack)-10%)] rotate-[-15deg]"
-                    >
-                      <img
-                        src={stickerSrc}
-                        alt=""
-                        className="found-sticker-pop h-auto w-full select-none"
-                        decoding="async"
-                      />
-                    </span>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                ))
+              : "Find plant markers in the galleries and scan them with your camera."}
+          </p>
+        </header>
+
+        <div
+          className={`mx-auto mt-hunt-stack grid w-full min-w-0 max-w-md grid-cols-2 items-start gap-x-hunt-gap pb-hunt-gap${showPlantEntrance ? " hunt-plant-grid--enter" : ""}`}
+          role="presentation"
+        >
+          <ul className="flex min-w-0 flex-col gap-hunt-gap" role="list">
+            {leftColumnPlants.map((plant, columnIndex) =>
+              renderPlantTile(plant, columnIndex * 2, "left"),
+            )}
+          </ul>
+          <ul
+            className="flex min-w-0 flex-col gap-hunt-gap pt-[calc(var(--size-hunt-plant-tile)/2)]"
+            role="list"
+          >
+            {rightColumnPlants.map((plant, columnIndex) =>
+              renderPlantTile(plant, columnIndex * 2 + 1, "right"),
+            )}
+          </ul>
+        </div>
       </div>
 
       <div className="flex w-full min-w-0 shrink-0 flex-col px-hunt-screen pb-hunt-screen pt-hunt-gap">
@@ -353,24 +424,7 @@ export function HomeScreen({ foragerName }: HomeScreenProps) {
       </div>
 
       {scanOpen ? (
-        <div
-          className="absolute inset-0 z-[300] flex flex-col overflow-x-hidden overflow-y-hidden rounded-[length:var(--radius-device-shell)] bg-black"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Camera preview"
-        >
-          <div
-            id={QR_SCANNER_ELEMENT_ID}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-hunt-screen pt-hunt-gap">
-            <div className="pointer-events-auto mx-auto w-full max-w-md">
-              <HuntPrimaryButton type="button" onClick={stopScan}>
-                Close camera
-              </HuntPrimaryButton>
-            </div>
-          </div>
-        </div>
+        <ScanCameraOverlay readerId={QR_SCANNER_ELEMENT_ID} onClose={stopScan} />
       ) : null}
 
       <PlantFoundSheet

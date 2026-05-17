@@ -13,6 +13,12 @@ export const MUSEUM_DEVICE = {
   displayInsetPx: 0,
 } as const;
 
+/** Local dev preview — smaller logical viewport (e.g. narrow Android). */
+export const MUSEUM_DEV_PREVIEW_DEVICE = {
+  widthPx: 360,
+  heightPx: 667,
+} as const;
+
 export const MUSEUM_MOTION = {
   durationMs: 200,
   /** Welcome ↔ homescreen cross-fade (matches `--duration-hunt-screen`). */

@@ -16,7 +16,7 @@ export function MuseumFlow() {
   const [foragerName, setForagerName] = useState("");
 
   return (
-    <div className="relative flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden bg-hunt-bg">
+    <div className="relative flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden bg-transparent">
       <div
         className={
           phase === "welcome"
@@ -49,7 +49,7 @@ export function MuseumFlow() {
           transform: phase === "home" ? "translateY(0)" : "translateY(0.5rem)",
         }}
       >
-        <HomeScreen foragerName={foragerName} />
+        <HomeScreen foragerName={foragerName} isActive={phase === "home"} />
       </div>
     </div>
   );

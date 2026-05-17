@@ -49,6 +49,12 @@
   --text-hunt-h3: 16px;
   --text-hunt-h3--line-height: 1.35;
 
+  /* Body — default copy; drives `text-base` app-wide (intro, sheet, fields, buttons) */
+  --text-hunt-body: 18px;
+  --text-hunt-body--line-height: 1.35;
+  --text-base: var(--text-hunt-body);
+  --text-base--line-height: var(--text-hunt-body--line-height);
+
   /* ── Motion (durations & easings — use in CSS animation/transition or TSX) ─ */
 
   --ease-hunt: cubic-bezier(0.42, 0, 0.58, 1);
@@ -85,7 +91,8 @@
   --spacing-hunt-tight: 0.75rem;
   --spacing-hunt-tight-half: 0.375rem;
   --spacing-hunt-subhead-inline: 2rem;
-  --spacing-hunt-welcome-title-pt: 140px;
+  /* Welcome title inset — scales down on short phones so marquee + form fit without overlap */
+  --spacing-hunt-welcome-title-pt: clamp(1.5rem, 6dvh + 0.75rem, 8.75rem);
   --spacing-hunt-button-x: 1.25rem;
   --spacing-hunt-button-y: 0.625rem;
   --spacing-hunt-touch: 2.75rem;
@@ -102,12 +109,16 @@
 
   /* ── Sizes & min heights ─────────────────────────────────────────────────── */
 
-  --min-height-hunt-button: 65px;
+  --height-hunt-button: 56px;
+  --min-height-hunt-button: 56px;
   --size-hunt-shape: 3rem;
   /* ~175px circles at 390 logical width — grid + min-w-0 shrink tiles on narrower viewports */
   --size-hunt-plant-tile: 10.875rem;
-  /* Welcome marquee row — each tile */
-  --size-hunt-welcome-marquee-tile: 130px;
+  /* Welcome marquee row — each tile (fixed; matches desktop preview) */
+  --size-hunt-welcome-marquee-tile: 8.125rem;
+  /* iPhone 14 logical — hunt background texture tile (see museum.ts MUSEUM_DEVICE) */
+  --size-hunt-background-tile-w: 390px;
+  --size-hunt-background-tile-h: 844px;
 
   /* ── Colour primitives (raw palette — prefer semantics in components) ───── */
 
@@ -149,7 +160,7 @@
   --color-hunt-field-border: color-mix(in srgb, var(--color-hunt-secondary-dark) 55%, #faf8f3 45%);
   /* Found sheet secondary CTA (“Add to collection”) */
   --color-hunt-sheet-cta-bg: #dadada;
-  --color-hunt-focus-ring: var(--color-hunt-headline);
+  --color-hunt-focus-ring: var(--color-hunt-coral);
   /* Scrollbar thumb (also used in component scroll regions) */
   --color-hunt-scrollbar-thumb: rgb(255 255 255 / 0.2);
 }
@@ -161,13 +172,37 @@
 @layer base {
   html {
     overflow-x: hidden;
+    min-height: 100dvh;
+    background-color: var(--color-hunt-bg);
+  }
+
+  /* Fixed layer tiles the texture at iPhone 14 logical size while views scroll. */
+  html::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--color-hunt-bg);
+    background-image: url("./assets/hunt-background.png");
+    background-size: var(--size-hunt-background-tile-w) var(--size-hunt-background-tile-h);
+    background-position: top left;
+    background-repeat: repeat;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: transparent;
+    font-size: var(--text-hunt-body);
+    line-height: var(--text-hunt-body--line-height);
   }
 
   #root {
     display: flex;
     min-height: 100dvh;
     min-width: 0;
+    flex: 1;
     flex-direction: column;
+    background-color: transparent;
   }
 
   * {
@@ -207,6 +242,86 @@
     border-radius: 9999px;
   }
 
+  /* --- Welcome screen: title letters + staggered form reveal --- */
+
+  @keyframes welcome-title-letter-in {
+    0% {
+      opacity: 0;
+      transform: translateY(0.28em) scale(0.9);
+    }
+    52% {
+      opacity: 1;
+      transform: translateY(0) scale(1.05);
+    }
+    72% {
+      transform: scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes welcome-reveal-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.35rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .welcome-screen--enter,
+  .hunt-home-header--enter {
+    --welcome-title-letter-stagger: 50ms;
+    --welcome-title-letter-duration: 420ms;
+    --welcome-reveal-duration: 280ms;
+    --welcome-reveal-stagger: 90ms;
+    --welcome-title-end-delay: calc(
+      (var(--welcome-title-letter-count) - 1) * var(--welcome-title-letter-stagger) +
+        var(--welcome-title-letter-duration)
+    );
+    --welcome-intro-delay: var(--welcome-title-end-delay);
+    --welcome-field-delay: calc(var(--welcome-intro-delay) + var(--welcome-reveal-stagger));
+    --welcome-button-delay: calc(var(--welcome-intro-delay) + 2 * var(--welcome-reveal-stagger));
+  }
+
+  .welcome-title-letter {
+    display: inline-block;
+  }
+
+  .welcome-screen--enter .welcome-title-letter,
+  .hunt-home-header--enter .welcome-title-letter {
+    animation: welcome-title-letter-in var(--welcome-title-letter-duration)
+      var(--ease-hunt-found-sticker) both;
+    animation-delay: calc(var(--welcome-letter-index, 0) * var(--welcome-title-letter-stagger));
+  }
+
+  .welcome-screen--enter .welcome-screen-intro-line,
+  .hunt-home-header--enter .welcome-screen-intro-line,
+  .welcome-screen--enter .welcome-screen-field-reveal,
+  .welcome-screen--enter .welcome-screen-button-reveal {
+    opacity: 0;
+    animation: welcome-reveal-fade-in var(--welcome-reveal-duration) var(--ease-hunt) both;
+  }
+
+  .welcome-screen--enter .welcome-screen-intro-line,
+  .hunt-home-header--enter .welcome-screen-intro-line {
+    animation-delay: calc(
+      var(--welcome-intro-delay) + var(--welcome-intro-line-index, 0) * var(--welcome-reveal-stagger)
+    );
+  }
+
+  .welcome-screen--enter .welcome-screen-field-reveal {
+    animation-delay: var(--welcome-field-delay);
+  }
+
+  .welcome-screen--enter .welcome-screen-button-reveal {
+    animation-delay: var(--welcome-button-delay);
+  }
+
   /* --- Welcome screen: infinite horizontal marquee (plant icons) --- */
 
   @keyframes hunt-welcome-marquee {
@@ -221,8 +336,22 @@
   .welcome-marquee-track {
     display: flex;
     width: max-content;
-    animation: hunt-welcome-marquee var(--duration-hunt-welcome-marquee) var(--ease-hunt-welcome-marquee)
-      infinite;
+    will-change: transform;
+  }
+
+  .welcome-marquee-viewport {
+    touch-action: none;
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .welcome-marquee-viewport--dragging {
+    cursor: grabbing;
+  }
+
+  .welcome-marquee-viewport--dragging .welcome-marquee-track {
+    will-change: transform;
   }
 
   /* --- Found sheet: scrollable body — WebKit track inset clears the close button --- */
@@ -291,6 +420,24 @@
     }
   }
 
+  @keyframes hunt-plant-tile-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.82);
+    }
+    52% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+    72% {
+      transform: scale(0.97);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
   @keyframes hunt-found-sticker-pop {
     0% {
       opacity: 0;
@@ -318,16 +465,12 @@
   /* --- Found sheet: classes that attach the keyframes (TSX toggles these) --- */
 
   .found-sheet-backdrop-enter {
-    animation: hunt-found-backdrop-in var(--duration-hunt-screen) var(--ease-hunt) both;
+    animation: hunt-found-backdrop-in 220ms var(--ease-hunt) both;
   }
 
   .found-sheet-backdrop-exit {
     animation: hunt-found-backdrop-out var(--duration-hunt-found-sheet-out) var(--ease-hunt-found-sheet-out)
       both forwards;
-  }
-
-  .found-sheet-panel-enter {
-    animation: hunt-found-sheet-in var(--duration-hunt-found-sheet) var(--ease-hunt-found-sheet) both;
   }
 
   .found-sheet-panel-exit {
@@ -340,6 +483,111 @@
       forwards;
   }
 
+  /* --- Found sheet: staged entrance (backdrop → icon → sticker → title → photo → body) --- */
+
+  @keyframes found-sheet-photo-reveal {
+    0% {
+      opacity: 0;
+      clip-path: circle(0% at 50% 50%);
+    }
+    100% {
+      opacity: 1;
+      clip-path: circle(141% at 50% 50%);
+    }
+  }
+
+  .found-sheet--enter {
+    --found-shell-duration: 120ms;
+    --found-icon-delay: 100ms;
+    --found-icon-duration: 300ms;
+    --found-sticker-delay: calc(var(--found-icon-delay) + var(--found-icon-duration));
+    --found-title-delay: calc(var(--found-sticker-delay) + var(--duration-hunt-found-sticker));
+    --found-title-letter-stagger: 30ms;
+    --found-title-letter-duration: 250ms;
+    --found-title-end-delay: calc(
+      var(--found-title-delay) +
+        (var(--found-title-letter-count) - 1) * var(--found-title-letter-stagger) +
+        var(--found-title-letter-duration)
+    );
+    --found-photo-delay: var(--found-title-end-delay);
+    --found-photo-duration: 520ms;
+    --found-body-delay: calc(var(--found-photo-delay) + var(--found-photo-duration));
+  }
+
+  .found-sheet--enter .found-sheet-shell-enter,
+  .found-sheet--enter .found-sheet-close-enter {
+    opacity: 0;
+    animation: hunt-found-backdrop-in var(--found-shell-duration) var(--ease-hunt) both;
+  }
+
+  .found-sheet--enter .found-sheet-hero-icon {
+    opacity: 0;
+    animation: hunt-plant-tile-pop var(--found-icon-duration) var(--ease-hunt-found-sticker) both;
+    animation-delay: var(--found-icon-delay);
+  }
+
+  .found-sheet--enter .found-sheet-hero-sticker {
+    opacity: 0;
+    animation: hunt-found-sticker-pop var(--duration-hunt-found-sticker) var(--ease-hunt-found-sticker) both;
+    animation-delay: var(--found-sticker-delay);
+  }
+
+  .found-sheet--enter .found-sheet-title-letter {
+    opacity: 0;
+    animation: welcome-title-letter-in var(--found-title-letter-duration) var(--ease-hunt-found-sticker)
+      both;
+    animation-delay: calc(
+      var(--found-title-delay) + var(--welcome-letter-index, 0) * var(--found-title-letter-stagger)
+    );
+  }
+
+  .found-sheet--enter .found-sheet-photo-reveal {
+    opacity: 0;
+    animation: found-sheet-photo-reveal var(--found-photo-duration) ease-in-out both;
+    animation-delay: var(--found-photo-delay);
+  }
+
+  .found-sheet--enter .found-sheet-body-reveal {
+    opacity: 0;
+    animation: welcome-reveal-fade-in 300ms var(--ease-hunt) both;
+    animation-delay: var(--found-body-delay);
+  }
+
+  /* --- Homescreen: staggered plant icon entrance (top-left, alternating columns) --- */
+
+  .hunt-plant-grid--enter .hunt-plant-tile-enter {
+    animation: hunt-plant-tile-pop 480ms var(--ease-hunt-found-sticker) both;
+    animation-delay: calc(var(--hunt-plant-tile-enter-index, 0) * 100ms);
+  }
+
+  /* --- Scan camera: full-bleed live preview (html5-qrcode) --- */
+
+  .bushfood-scan-overlay .bushfood-scan-reader {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  .bushfood-scan-overlay .bushfood-scan-reader video {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    object-fit: cover;
+  }
+
+  .bushfood-scan-overlay .bushfood-scan-reader #qr-shaded-region {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+  }
+
   /* --- Reduced motion: strip marquee + sheet/sticker animations --- */
 
   @media (prefers-reduced-motion: reduce) {
@@ -350,15 +598,50 @@
 
     .found-sheet-backdrop-enter,
     .found-sheet-backdrop-exit,
-    .found-sheet-panel-enter,
-    .found-sheet-panel-exit {
+    .found-sheet-panel-exit,
+    .found-sheet--enter .found-sheet-shell-enter,
+    .found-sheet--enter .found-sheet-close-enter,
+    .found-sheet--enter .found-sheet-hero-icon,
+    .found-sheet--enter .found-sheet-hero-sticker,
+    .found-sheet--enter .found-sheet-title-letter,
+    .found-sheet--enter .found-sheet-photo-reveal,
+    .found-sheet--enter .found-sheet-body-reveal {
       animation: none;
+    }
+
+    .found-sheet--enter .found-sheet-shell-enter,
+    .found-sheet--enter .found-sheet-close-enter,
+    .found-sheet--enter .found-sheet-hero-icon,
+    .found-sheet--enter .found-sheet-hero-sticker,
+    .found-sheet--enter .found-sheet-title-letter,
+    .found-sheet--enter .found-sheet-photo-reveal,
+    .found-sheet--enter .found-sheet-body-reveal {
+      opacity: 1;
+      transform: none;
+      clip-path: none;
     }
 
     .found-sticker-pop {
       animation: none;
       opacity: 1;
       transform: scale(1.2);
+    }
+
+    .hunt-plant-grid--enter .hunt-plant-tile-enter {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+
+    .welcome-screen--enter .welcome-title-letter,
+    .hunt-home-header--enter .welcome-title-letter,
+    .welcome-screen--enter .welcome-screen-intro-line,
+    .hunt-home-header--enter .welcome-screen-intro-line,
+    .welcome-screen--enter .welcome-screen-field-reveal,
+    .welcome-screen--enter .welcome-screen-button-reveal {
+      animation: none;
+      opacity: 1;
+      transform: none;
     }
   }
 }
