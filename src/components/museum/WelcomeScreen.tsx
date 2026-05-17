@@ -1,97 +1,121 @@
-import { useId, useState, type FormEvent } from "react";
-import { HUNT_PLANT_TILES } from "../../tokens/huntPlantTiles";
+import { useId, useState, type CSSProperties, type FormEvent } from "react";
 import { HuntPrimaryButton } from "./HuntPrimaryButton";
+import { WelcomeMarquee } from "./WelcomeMarquee";
 
 type WelcomeScreenProps = {
   onStarted: (foragerName: string) => void;
 };
 
+const WELCOME_TITLE_LINES = ["Welcome to", "Bush Food"] as const;
+const WELCOME_INTRO_LINES = [
+  "Scan the coloured shapes hidden in the museum to",
+  "learn about edible native plants in\u00A0Victoria.",
+] as const;
+const WELCOME_TITLE_LETTER_COUNT = WELCOME_TITLE_LINES.reduce((sum, line) => sum + line.length, 0);
+
+const welcomeEntranceStyle = {
+  "--welcome-title-letter-count": WELCOME_TITLE_LETTER_COUNT,
+} as CSSProperties;
+
+function WelcomeTitle() {
+  let letterIndex = 0;
+
+  return (
+    <h1 className="font-black text-balance text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading">
+      <span className="sr-only">Welcome to Bush Food</span>
+      <span aria-hidden className="welcome-title-visual">
+        {WELCOME_TITLE_LINES.map((line, lineIndex) => (
+          <span key={line} className={lineIndex > 0 ? "block" : undefined}>
+            {[...line].map((char, charIndex) => {
+              const index = letterIndex++;
+              return (
+                <span
+                  key={`${lineIndex}-${charIndex}`}
+                  className="welcome-title-letter"
+                  style={{ "--welcome-letter-index": index } as CSSProperties}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </span>
+              );
+            })}
+          </span>
+        ))}
+      </span>
+    </h1>
+  );
+}
+
 /**
- * Welcome step — Bush Food title, intro, scrolling plant icons, name + primary action.
+ * Welcome step — title/intro pinned top, form pinned bottom, marquee vertically centered between.
  */
 export function WelcomeScreen({ onStarted }: WelcomeScreenProps) {
   const nameFieldId = useId();
   const introId = useId();
-  const nameQuestionId = useId();
   const [name, setName] = useState("");
+  const [nameFieldFocused, setNameFieldFocused] = useState(false);
+
+  const showNamePlaceholder = !nameFieldFocused && name.length === 0;
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     onStarted(name);
   }
 
-  const marqueePlants = [...HUNT_PLANT_TILES, ...HUNT_PLANT_TILES];
-
   return (
-    <main className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden bg-hunt-bg text-center">
+    <main className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-transparent text-center">
       <form
-        className="flex min-h-0 w-full flex-1 flex-col"
+        className="welcome-screen-form welcome-screen--enter grid min-h-0 w-full min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden"
+        style={welcomeEntranceStyle}
         onSubmit={handleSubmit}
         aria-describedby={introId}
       >
-        <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col items-center overflow-x-hidden overflow-y-auto px-hunt-screen pt-hunt-welcome-title-pt">
-          <div className="flex w-full min-w-0 max-w-md flex-col items-center">
-            <h1 className="font-black text-balance text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading">
-              Welcome to
-              <br />
-              Bush Food
-            </h1>
+        <header className="welcome-screen-header shrink-0 px-hunt-screen pt-[length:var(--spacing-hunt-welcome-title-pt)]">
+          <div className="mx-auto flex w-full min-w-0 max-w-md flex-col items-center">
+            <WelcomeTitle />
 
             <p
               id={introId}
               className="mx-auto mt-hunt-stack max-w-full text-pretty text-base font-normal leading-relaxed text-hunt-text-subhead sm:mx-hunt-subhead-inline"
             >
-              Scan the coloured shapes hidden in the museum to learn about edible native plants in
-              Victoria.
+              {WELCOME_INTRO_LINES.map((line, index) => (
+                <span
+                  key={line}
+                  className="welcome-screen-intro-line block"
+                  style={{ "--welcome-intro-line-index": index } as CSSProperties}
+                >
+                  {line}
+                </span>
+              ))}
             </p>
           </div>
+        </header>
 
-          <div
-            className="relative mt-hunt-gap min-w-0 shrink-0 self-stretch overflow-hidden [-webkit-mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] -mx-hunt-screen"
-            aria-hidden
-          >
-            <div className="welcome-marquee-track gap-hunt-gap py-hunt-tight">
-              {marqueePlants.map((plant, i) => (
-                <div
-                  key={`${plant.id}-${i}`}
-                  className="flex size-[length:var(--size-hunt-welcome-marquee-tile)] shrink-0 items-center justify-center"
-                >
-                  <img
-                    src={plant.src}
-                    alt=""
-                    className="h-full w-full object-contain object-center"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="welcome-screen-marquee flex h-full min-h-0 w-full min-w-0 items-center justify-center">
+          <WelcomeMarquee />
         </div>
 
-        <div className="flex w-full min-w-0 shrink-0 flex-col items-center gap-hunt-stack px-hunt-screen pb-hunt-screen pt-hunt-gap">
-          <div className="flex w-full min-w-0 max-w-md flex-col items-center gap-hunt-stack text-center">
-            <label
-              id={nameQuestionId}
-              htmlFor={nameFieldId}
-              className="text-pretty text-hunt-h2 font-semibold text-hunt-text"
-            >
-              What&apos;s your forager&apos;s name?
-            </label>
+        <footer className="welcome-screen-footer relative z-10 flex w-full min-w-0 shrink-0 flex-col items-center gap-hunt-stack border-hunt-chip-border/40 bg-transparent px-hunt-screen pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-hunt-gap">
+          <div className="welcome-screen-field-reveal w-full min-w-0 max-w-md">
             <input
               id={nameFieldId}
               name="explorerName"
               type="text"
-              autoComplete="name"
+              autoComplete="off"
               inputMode="text"
-              placeholder="e.g. Alex"
+              enterKeyHint="done"
+              placeholder={showNamePlaceholder ? "What's your forager's name?" : ""}
+              aria-label="What's your forager's name?"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="min-h-hunt-button w-full rounded-[length:var(--radius-field)] border border-hunt-field-border bg-hunt-field-bg px-hunt-field-x text-center font-normal text-base text-hunt-field-fg placeholder:text-hunt-text-placeholder transition-hunt focus-visible:border-hunt-focus-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hunt-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-hunt-bg"
+              onFocus={() => setNameFieldFocused(true)}
+              onBlur={() => setNameFieldFocused(false)}
+              className="h-hunt-button max-h-hunt-button min-h-hunt-button w-full rounded-[length:var(--radius-field)] border border-hunt-field-border bg-hunt-field-bg px-hunt-field-x text-center font-normal text-base text-hunt-field-fg placeholder:text-hunt-text-placeholder transition-hunt focus:placeholder:opacity-0 focus-visible:border-hunt-focus-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-hunt-focus-ring focus-visible:ring-offset-1 focus-visible:ring-offset-hunt-bg"
             />
           </div>
-          <div className="w-full min-w-0 max-w-md">
+          <div className="welcome-screen-button-reveal w-full min-w-0 max-w-md">
             <HuntPrimaryButton type="submit">Start Foraging</HuntPrimaryButton>
           </div>
-        </div>
+        </footer>
       </form>
     </main>
   );
