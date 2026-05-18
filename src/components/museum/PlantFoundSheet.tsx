@@ -1,6 +1,9 @@
 import { X } from "@phosphor-icons/react";
+import Lottie, { type LottieRefCurrentProps } from "lottie-react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
+import kangarooGrassLottie from "../../assets/native-plants/lottie/KangarooGrass.json";
+import wattleseedLottie from "../../assets/native-plants/lottie/Wattleseed.json";
 import { FOUND_PLANT_COPY } from "../../tokens/foundPlantCopy";
 import { HUNT_PLANT_FOUND_MEDIA } from "../../tokens/huntPlantFoundMedia";
 import { HUNT_PLANT_TILES, type HuntPlantId } from "../../tokens/huntPlantTiles";
@@ -20,6 +23,67 @@ const EXIT_FALLBACK_MS = 350;
 const FOUND_TITLE_PREFIX = "You found ";
 const FOUND_PHOTO_DISCLAIMER =
   "For educational purposes only. Do not forage or consume wild plants without guidance from a qualified expert.";
+const FOUND_HERO_LOTTIE_PLAY_AFTER_INTRO_MS = 0;
+
+/** Matches found-sheet entrance tokens in index.css (`.found-sheet--enter`). */
+const FOUND_ICON_DELAY_MS = 100;
+const FOUND_ICON_DURATION_MS = 300;
+const FOUND_STICKER_DURATION_MS = 620;
+const FOUND_TITLE_LETTER_STAGGER_MS = 30;
+const FOUND_TITLE_LETTER_DURATION_MS = 250;
+const FOUND_PHOTO_DURATION_MS = 520;
+
+function computeFoundIntroEndMs(titleLetterCount: number): number {
+  const stickerEndMs = FOUND_ICON_DELAY_MS + FOUND_ICON_DURATION_MS + FOUND_STICKER_DURATION_MS;
+  const titleEndMs =
+    stickerEndMs +
+    (titleLetterCount - 1) * FOUND_TITLE_LETTER_STAGGER_MS +
+    FOUND_TITLE_LETTER_DURATION_MS;
+  return titleEndMs + FOUND_PHOTO_DURATION_MS;
+}
+
+function FoundSheetHeroLottie({
+  animationData,
+  playDelayMs,
+  active,
+}: {
+  animationData: typeof wattleseedLottie | typeof kangarooGrassLottie;
+  playDelayMs: number;
+  active: boolean;
+}) {
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
+
+  useEffect(() => {
+    if (!active) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) {
+      lottieRef.current?.goToAndStop(0, true);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      lottieRef.current?.goToAndPlay(0, true);
+    }, playDelayMs);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [active, playDelayMs]);
+
+  const handleReady = useCallback(() => {
+    lottieRef.current?.goToAndStop(0, true);
+  }, []);
+
+  return (
+    <Lottie
+      lottieRef={lottieRef}
+      animationData={animationData}
+      loop={false}
+      autoplay={false}
+      onDOMLoaded={handleReady}
+      className="max-h-full max-w-full"
+    />
+  );
+}
 
 function animationNameList(e: React.AnimationEvent<HTMLElement>): string[] {
   return e.animationName
@@ -186,10 +250,22 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
   const heroSrc = tileHeroSrc(resolvedPlantId);
   const titleId = `plant-found-title-${resolvedPlantId}`;
   const showEntrance = !exiting;
+  /** Keep post-entrance layout/transforms while the panel exits (avoids shrink before unmount). */
+  const holdEntranceLayout = showEntrance || exiting;
   const foundTitleLetterCount = FOUND_TITLE_PREFIX.length + copy.displayName.length;
   const foundEntranceStyle = {
     "--found-title-letter-count": foundTitleLetterCount,
   } as CSSProperties;
+  const foundIntroEndMs = computeFoundIntroEndMs(foundTitleLetterCount);
+  const heroLottiePlayDelayMs = showEntrance
+    ? foundIntroEndMs + FOUND_HERO_LOTTIE_PLAY_AFTER_INTRO_MS
+    : 0;
+  const heroLottieData =
+    resolvedPlantId === "wattleseed"
+      ? wattleseedLottie
+      : resolvedPlantId === "kangaroo-grass"
+        ? kangarooGrassLottie
+        : null;
 
   return createPortal(
     <>
@@ -214,12 +290,12 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
           onAnimationEnd={onSheetMotionAnimationEnd}
         >
             <div
-              className={`relative flex min-h-0 flex-1 w-full min-w-0 flex-col overflow-x-hidden overflow-y-hidden${showEntrance ? " found-sheet-shell-enter found-sheet--enter" : ""}`}
-              style={showEntrance ? foundEntranceStyle : undefined}
+              className={`relative flex min-h-0 flex-1 w-full min-w-0 flex-col overflow-x-hidden overflow-y-hidden${holdEntranceLayout ? " found-sheet-shell-enter found-sheet--enter" : ""}`}
+              style={holdEntranceLayout ? foundEntranceStyle : undefined}
             >
               <button
                 type="button"
-                className={`group absolute right-hunt-screen top-hunt-gap z-30 inline-flex size-hunt-touch items-center justify-center rounded-[length:var(--radius-field)] bg-hunt-bg text-hunt-accent-warm ring-1 ring-hunt-chip-border backdrop-blur-sm transition-hunt hover:bg-hunt-dark-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hunt-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-hunt-bg${showEntrance ? " found-sheet-close-enter" : ""}`}
+                className={`group absolute right-hunt-screen top-hunt-gap z-30 inline-flex size-hunt-touch items-center justify-center rounded-[length:var(--radius-field)] bg-hunt-bg text-hunt-accent-warm ring-1 ring-hunt-chip-border backdrop-blur-sm transition-hunt hover:bg-hunt-dark-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hunt-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-hunt-bg${holdEntranceLayout ? " found-sheet-close-enter" : ""}`}
                 onClick={startExit}
                 aria-label="Close"
               >
@@ -234,13 +310,21 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
                 <div className="flex w-full min-w-0 flex-col items-center px-hunt-screen pt-hunt-found-hero-pt">
                   <div className="relative mx-auto aspect-square w-full max-w-[min(100%,var(--size-hunt-plant-tile))] shrink-0">
                     <div
-                      className={`flex size-full items-center justify-center overflow-hidden rounded-full${showEntrance ? " found-sheet-hero-icon" : ""}`}
+                      className={`flex size-full items-center justify-center overflow-hidden rounded-full${holdEntranceLayout ? " found-sheet-hero-icon" : ""}`}
                     >
-                      <img
-                        src={heroSrc}
-                        alt=""
-                        className="max-h-full max-w-full object-contain object-center"
-                      />
+                      {heroLottieData != null ? (
+                        <FoundSheetHeroLottie
+                          animationData={heroLottieData}
+                          playDelayMs={heroLottiePlayDelayMs}
+                          active={showEntrance}
+                        />
+                      ) : (
+                        <img
+                          src={heroSrc}
+                          alt=""
+                          className="max-h-full max-w-full object-contain object-center"
+                        />
+                      )}
                     </div>
                     <span
                       aria-hidden
@@ -249,7 +333,7 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
                       <img
                         src={media.stickerSrc}
                         alt=""
-                        className={`h-auto w-full select-none${showEntrance ? " found-sheet-hero-sticker" : " found-sticker-pop"}`}
+                        className={`h-auto w-full select-none${holdEntranceLayout ? " found-sheet-hero-sticker" : ""}`}
                         decoding="async"
                       />
                     </span>
@@ -260,12 +344,12 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
                   prefix={FOUND_TITLE_PREFIX}
                   plantName={copy.displayName}
                   titleId={titleId}
-                  animate={showEntrance}
+                  animate={holdEntranceLayout}
                 />
 
                 <div className="w-full min-w-0 px-hunt-screen py-hunt-found-media-y">
                   <div
-                    className={`aspect-video w-full min-w-0 overflow-hidden rounded-[length:var(--radius-field)] bg-white/5${showEntrance ? " found-sheet-photo-reveal" : ""}`}
+                    className={`aspect-video w-full min-w-0 overflow-hidden rounded-[length:var(--radius-field)] bg-white/5${holdEntranceLayout ? " found-sheet-photo-reveal" : ""}`}
                   >
                     <img
                       src={media.photoSrc}
@@ -278,7 +362,7 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
                   </p>
                 </div>
 
-                <div className={`min-w-0 px-hunt-screen pb-hunt-gap${showEntrance ? " found-sheet-body-reveal" : ""}`}>
+                <div className={`min-w-0 px-hunt-screen pb-hunt-gap${holdEntranceLayout ? " found-sheet-body-reveal" : ""}`}>
                   <div className="flex min-w-0 flex-col gap-hunt-found-section-gap text-left text-base leading-relaxed">
                     {copy.sections.map((section) => (
                       <section key={section.title} className="min-w-0">
@@ -305,7 +389,7 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
               </div>
 
               <div
-                className={`min-w-0 shrink-0 px-hunt-screen pt-hunt-gap pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]${showEntrance ? " found-sheet-body-reveal" : ""}`}
+                className={`min-w-0 shrink-0 px-hunt-screen pt-hunt-gap pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]${holdEntranceLayout ? " found-sheet-body-reveal" : ""}`}
               >
                 <HuntPrimaryButton type="button" onClick={onAddToCollection}>
                   Add to collection

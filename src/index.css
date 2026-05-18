@@ -418,10 +418,10 @@
 
   @keyframes hunt-found-sheet-out {
     from {
-      opacity: 1;
+      transform: translate3d(0, 0, 0);
     }
     to {
-      opacity: 0;
+      transform: translate3d(0, 100%, 0);
     }
   }
 
@@ -500,11 +500,9 @@
 
   @keyframes found-sheet-photo-reveal {
     0% {
-      opacity: 0;
       clip-path: inset(50% round var(--radius-field));
     }
     100% {
-      opacity: 1;
       clip-path: inset(0% round var(--radius-field));
     }
   }
@@ -555,7 +553,6 @@
   }
 
   .found-sheet--enter .found-sheet-photo-reveal {
-    opacity: 0;
     animation: found-sheet-photo-reveal var(--found-photo-duration) ease-in-out both;
     animation-delay: var(--found-photo-delay);
   }
