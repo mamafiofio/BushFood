@@ -18,6 +18,8 @@ const SHEET_OUT_ANIMATION = "hunt-found-sheet-out";
 /** After `--duration-hunt-found-sheet-out` (300ms) if `animationend` does not fire */
 const EXIT_FALLBACK_MS = 350;
 const FOUND_TITLE_PREFIX = "You found ";
+const FOUND_PHOTO_DISCLAIMER =
+  "For educational purposes only. Do not forage or consume wild plants without guidance from a qualified expert.";
 
 function animationNameList(e: React.AnimationEvent<HTMLElement>): string[] {
   return e.animationName
@@ -48,7 +50,7 @@ function FoundTitleLetters({
         <p className="text-base font-bold leading-normal text-hunt-text-heading">{prefix.trim()}</p>
         <h1
           id={titleId}
-          className="mt-hunt-tight-half text-balance font-black text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading"
+          className="mt-0 text-balance font-black text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading"
         >
           {plantName}
         </h1>
@@ -81,7 +83,7 @@ function FoundTitleLetters({
         </p>
         <h1
           id={titleId}
-          className="mt-hunt-tight-half text-balance font-black text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading"
+          className="mt-0 text-balance font-black text-hunt-h1 tracking-hunt-h1 text-hunt-text-heading"
         >
           {[...plantName].map((char, charIndex) => {
             const index = letterIndex++;
@@ -195,8 +197,8 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
         role="presentation"
         className={
           exiting
-            ? "found-sheet-backdrop-exit fixed inset-0 z-[360] cursor-default bg-hunt-bg"
-            : "found-sheet-backdrop-enter fixed inset-0 z-[360] cursor-default bg-hunt-bg"
+            ? "found-sheet-backdrop-exit found-sheet-bg fixed inset-0 z-[360] cursor-default"
+            : "found-sheet-backdrop-enter found-sheet-bg fixed inset-0 z-[360] cursor-default"
         }
         onClick={startExit}
       />
@@ -206,8 +208,8 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
           aria-labelledby={titleId}
           className={
             exiting
-              ? "found-sheet-panel-exit fixed inset-0 z-[370] flex min-h-0 w-full min-w-0 flex-col overflow-hidden bg-hunt-bg text-left"
-              : "fixed inset-0 z-[370] flex min-h-0 w-full min-w-0 flex-col overflow-hidden bg-hunt-bg text-left"
+              ? "found-sheet-panel-exit found-sheet-bg fixed inset-0 z-[370] flex min-h-0 w-full min-w-0 flex-col overflow-hidden text-left"
+              : "found-sheet-bg fixed inset-0 z-[370] flex min-h-0 w-full min-w-0 flex-col overflow-hidden text-left"
           }
           onAnimationEnd={onSheetMotionAnimationEnd}
         >
@@ -263,7 +265,7 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
 
                 <div className="w-full min-w-0 px-hunt-screen py-hunt-found-media-y">
                   <div
-                    className={`aspect-video w-full min-w-0 overflow-hidden rounded-[length:var(--radius-field)] bg-white/5 ring-1 ring-hunt-chip-border${showEntrance ? " found-sheet-photo-reveal" : ""}`}
+                    className={`aspect-video w-full min-w-0 overflow-hidden rounded-[length:var(--radius-field)] bg-white/5${showEntrance ? " found-sheet-photo-reveal" : ""}`}
                   >
                     <img
                       src={media.photoSrc}
@@ -271,6 +273,9 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
                       className="h-full w-full object-cover object-center"
                     />
                   </div>
+                  <p className="mt-hunt-tight text-pretty text-md italic text-white/60">
+                    {FOUND_PHOTO_DISCLAIMER}
+                  </p>
                 </div>
 
                 <div className={`min-w-0 px-hunt-screen pb-hunt-gap${showEntrance ? " found-sheet-body-reveal" : ""}`}>

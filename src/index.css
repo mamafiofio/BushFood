@@ -469,6 +469,14 @@
 
   /* --- Found sheet: classes that attach the keyframes (TSX toggles these) --- */
 
+  .found-sheet-bg {
+    background-color: var(--color-hunt-bg);
+    background-image: url("./assets/hunt-background.png");
+    background-size: var(--size-hunt-background-tile-w) var(--size-hunt-background-tile-h);
+    background-position: top left;
+    background-repeat: repeat;
+  }
+
   .found-sheet-backdrop-enter {
     animation: hunt-found-backdrop-in 220ms var(--ease-hunt) both;
   }
@@ -493,11 +501,11 @@
   @keyframes found-sheet-photo-reveal {
     0% {
       opacity: 0;
-      clip-path: circle(0% at 50% 50%);
+      clip-path: inset(50% round var(--radius-field));
     }
     100% {
       opacity: 1;
-      clip-path: circle(141% at 50% 50%);
+      clip-path: inset(0% round var(--radius-field));
     }
   }
 

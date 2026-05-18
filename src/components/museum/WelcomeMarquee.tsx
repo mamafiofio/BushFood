@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
-import {
-  HUNT_WELCOME_MARQUEE_LOOP_COPIES,
-  HUNT_WELCOME_MARQUEE_TILES,
-  HUNT_WELCOME_MARQUEE_TRACK,
-} from "../../tokens/huntPlantTiles";
+import { HUNT_WELCOME_MARQUEE_LOOP_COPIES, HUNT_WELCOME_MARQUEE_TILES } from "../../tokens/huntPlantTiles";
 
 /** Matches `--duration-hunt-welcome-marquee` in index.css */
 const MARQUEE_DURATION_MS = 42_000;
@@ -37,16 +33,16 @@ export function WelcomeMarquee() {
   const dragRef = useRef<{ pointerId: number; startX: number; startOffset: number } | null>(null);
 
   const tilesPerLoop = HUNT_WELCOME_MARQUEE_TILES.length;
-  const expectedTileCount = tilesPerLoop * HUNT_WELCOME_MARQUEE_LOOP_COPIES;
-  const marqueePlants = HUNT_WELCOME_MARQUEE_TRACK;
+  const loopCopies = Math.max(2, HUNT_WELCOME_MARQUEE_LOOP_COPIES);
+  const expectedTileCount = tilesPerLoop * loopCopies;
 
   const measureLoop = useCallback(() => {
     const track = trackRef.current;
     if (!track || track.children.length < expectedTileCount) return;
     const secondCopyStart = track.children[tilesPerLoop] as HTMLElement | undefined;
     loopWidthRef.current =
-      secondCopyStart?.offsetLeft ?? track.scrollWidth / HUNT_WELCOME_MARQUEE_LOOP_COPIES;
-  }, [expectedTileCount, tilesPerLoop]);
+      secondCopyStart?.offsetLeft ?? track.scrollWidth / loopCopies;
+  }, [expectedTileCount, loopCopies, tilesPerLoop]);
 
   const normalizeOffset = useCallback((offset: number) => {
     const loop = loopWidthRef.current;
@@ -167,7 +163,7 @@ export function WelcomeMarquee() {
   return (
     <div
       ref={viewportRef}
-      className="welcome-marquee-viewport flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-hidden"
+      className="welcome-marquee-viewport flex h-full min-h-0 w-full min-w-0 items-center justify-start overflow-hidden"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
@@ -175,20 +171,24 @@ export function WelcomeMarquee() {
       aria-hidden
     >
       <div ref={trackRef} className="welcome-marquee-track gap-hunt-gap py-hunt-tight">
-        {marqueePlants.map((plant, i) => (
-          <div
-            key={`${plant.id}-${i}`}
-            className="flex size-[length:var(--size-hunt-welcome-marquee-tile)] shrink-0 items-center justify-center"
-          >
-            <img
-              src={plant.src}
-              alt=""
-              className="h-full w-full object-contain object-center"
-              draggable={false}
-              onLoad={measureLoop}
-            />
-          </div>
-        ))}
+        {Array.from({ length: loopCopies }, (_, copyIndex) =>
+          HUNT_WELCOME_MARQUEE_TILES.map((plant) => (
+            <div
+              key={`${plant.id}-copy-${copyIndex}`}
+              className="flex size-[length:var(--size-hunt-welcome-marquee-tile)] shrink-0 items-center justify-center"
+            >
+              <img
+                src={plant.src}
+                alt=""
+                className="h-full w-full object-contain object-center"
+                draggable={false}
+                loading="eager"
+                decoding="sync"
+                onLoad={measureLoop}
+              />
+            </div>
+          )),
+        )}
       </div>
     </div>
   );

@@ -83,7 +83,7 @@ export function WelcomeScreen({ onStarted }: WelcomeScreenProps) {
               decoding="async"
             />
           </div>
-          <div className="mx-auto mt-[15px] flex w-full min-w-0 max-w-md flex-col items-center">
+          <div className="mx-auto mt-[35px] flex w-full min-w-0 max-w-md flex-col items-center">
             <WelcomeTitle />
 
             <p
