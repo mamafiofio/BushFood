@@ -1,4 +1,5 @@
 import { useId, useState, type CSSProperties, type FormEvent } from "react";
+import melbourneMuseumLogo from "../../assets/melbourne-museum-logo-white.png";
 import { HuntPrimaryButton } from "./HuntPrimaryButton";
 import { WelcomeMarquee } from "./WelcomeMarquee";
 
@@ -8,8 +9,9 @@ type WelcomeScreenProps = {
 
 const WELCOME_TITLE_LINES = ["Welcome to", "Bush Food"] as const;
 const WELCOME_INTRO_LINES = [
-  "Scan the coloured shapes hidden in the museum to",
-  "learn about edible native plants in\u00A0Victoria.",
+  "Scan the coloured shapes hidden",
+  "in the museum to learn about",
+  "edible native plants in Victoria.",
 ] as const;
 const WELCOME_TITLE_LETTER_COUNT = WELCOME_TITLE_LINES.reduce((sum, line) => sum + line.length, 0);
 
@@ -69,13 +71,24 @@ export function WelcomeScreen({ onStarted }: WelcomeScreenProps) {
         onSubmit={handleSubmit}
         aria-describedby={introId}
       >
-        <header className="welcome-screen-header shrink-0 px-hunt-screen pt-[length:var(--spacing-hunt-welcome-title-pt)]">
-          <div className="mx-auto flex w-full min-w-0 max-w-md flex-col items-center">
+        <header className="welcome-screen-header relative shrink-0 px-hunt-screen pt-[length:var(--spacing-hunt-welcome-title-pt)]">
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 flex h-[length:var(--spacing-hunt-welcome-title-pt)] items-center justify-center"
+            aria-hidden
+          >
+            <img
+              src={melbourneMuseumLogo}
+              alt=""
+              className="h-[20px] w-auto max-w-full translate-y-[20px] object-contain object-center"
+              decoding="async"
+            />
+          </div>
+          <div className="mx-auto mt-[15px] flex w-full min-w-0 max-w-md flex-col items-center">
             <WelcomeTitle />
 
             <p
               id={introId}
-              className="mx-auto mt-hunt-stack max-w-full text-pretty text-base font-normal leading-relaxed text-hunt-text-subhead sm:mx-hunt-subhead-inline"
+              className="mx-auto mt-hunt-stack w-full max-w-none -mx-hunt-screen text-pretty text-base font-normal leading-relaxed text-hunt-text-subhead"
             >
               {WELCOME_INTRO_LINES.map((line, index) => (
                 <span

@@ -274,7 +274,7 @@
   }
 
   .welcome-screen--enter,
-  .hunt-home-header--enter {
+  .hunt-home-screen--enter {
     --welcome-title-letter-stagger: 50ms;
     --welcome-title-letter-duration: 420ms;
     --welcome-reveal-duration: 280ms;
@@ -284,6 +284,11 @@
         var(--welcome-title-letter-duration)
     );
     --welcome-intro-delay: var(--welcome-title-end-delay);
+    --welcome-intro-end-delay: calc(
+      var(--welcome-intro-delay) +
+        (var(--welcome-intro-line-count, 2) - 1) * var(--welcome-reveal-stagger) +
+        var(--welcome-reveal-duration)
+    );
     --welcome-field-delay: calc(var(--welcome-intro-delay) + var(--welcome-reveal-stagger));
     --welcome-button-delay: calc(var(--welcome-intro-delay) + 2 * var(--welcome-reveal-stagger));
   }
@@ -293,14 +298,14 @@
   }
 
   .welcome-screen--enter .welcome-title-letter,
-  .hunt-home-header--enter .welcome-title-letter {
+  .hunt-home-screen--enter .welcome-title-letter {
     animation: welcome-title-letter-in var(--welcome-title-letter-duration)
       var(--ease-hunt-found-sticker) both;
     animation-delay: calc(var(--welcome-letter-index, 0) * var(--welcome-title-letter-stagger));
   }
 
   .welcome-screen--enter .welcome-screen-intro-line,
-  .hunt-home-header--enter .welcome-screen-intro-line,
+  .hunt-home-screen--enter .welcome-screen-intro-line,
   .welcome-screen--enter .welcome-screen-field-reveal,
   .welcome-screen--enter .welcome-screen-button-reveal {
     opacity: 0;
@@ -308,7 +313,7 @@
   }
 
   .welcome-screen--enter .welcome-screen-intro-line,
-  .hunt-home-header--enter .welcome-screen-intro-line {
+  .hunt-home-screen--enter .welcome-screen-intro-line {
     animation-delay: calc(
       var(--welcome-intro-delay) + var(--welcome-intro-line-index, 0) * var(--welcome-reveal-stagger)
     );
@@ -557,7 +562,9 @@
 
   .hunt-plant-grid--enter .hunt-plant-tile-enter {
     animation: hunt-plant-tile-pop 480ms var(--ease-hunt-found-sticker) both;
-    animation-delay: calc(var(--hunt-plant-tile-enter-index, 0) * 100ms);
+    animation-delay: calc(
+      var(--welcome-intro-end-delay) + var(--hunt-plant-tile-enter-index, 0) * 100ms
+    );
   }
 
   /* --- Scan camera: full-bleed live preview (html5-qrcode) --- */
@@ -634,9 +641,9 @@
     }
 
     .welcome-screen--enter .welcome-title-letter,
-    .hunt-home-header--enter .welcome-title-letter,
+    .hunt-home-screen--enter .welcome-title-letter,
     .welcome-screen--enter .welcome-screen-intro-line,
-    .hunt-home-header--enter .welcome-screen-intro-line,
+    .hunt-home-screen--enter .welcome-screen-intro-line,
     .welcome-screen--enter .welcome-screen-field-reveal,
     .welcome-screen--enter .welcome-screen-button-reveal {
       animation: none;
