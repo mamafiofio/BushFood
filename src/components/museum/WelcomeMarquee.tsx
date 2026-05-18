@@ -1,5 +1,62 @@
+import Lottie, { type LottieRefCurrentProps } from "lottie-react";
 import { useCallback, useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
+import kangarooGrassLottie from "../../assets/native-plants/lottie/KangarooGrass.json";
+import wattleseedLottie from "../../assets/native-plants/lottie/Wattleseed.json";
 import { HUNT_WELCOME_MARQUEE_LOOP_COPIES, HUNT_WELCOME_MARQUEE_TILES } from "../../tokens/huntPlantTiles";
+
+const WELCOME_MARQUEE_LOTTIE_INTERVAL_MS = 5000;
+
+function WelcomeMarqueeLottieIcon({
+  animationData,
+  onReady,
+}: {
+  animationData: typeof wattleseedLottie | typeof kangarooGrassLottie;
+  onReady?: () => void;
+}) {
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startPlayback = useCallback(() => {
+    const lottie = lottieRef.current;
+    if (!lottie) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) {
+      lottie.goToAndStop(0, true);
+      return;
+    }
+
+    const play = () => {
+      lottie.goToAndPlay(0, true);
+    };
+
+    play();
+    if (intervalRef.current != null) window.clearInterval(intervalRef.current);
+    intervalRef.current = window.setInterval(play, WELCOME_MARQUEE_LOTTIE_INTERVAL_MS);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current != null) window.clearInterval(intervalRef.current);
+    };
+  }, []);
+
+  const handleReady = useCallback(() => {
+    onReady?.();
+    startPlayback();
+  }, [onReady, startPlayback]);
+
+  return (
+    <Lottie
+      lottieRef={lottieRef}
+      animationData={animationData}
+      loop={false}
+      autoplay={false}
+      onDOMLoaded={handleReady}
+      className="h-full w-full"
+    />
+  );
+}
 
 /** Matches `--duration-hunt-welcome-marquee` in index.css */
 const MARQUEE_DURATION_MS = 42_000;
@@ -177,15 +234,21 @@ export function WelcomeMarquee() {
               key={`${plant.id}-copy-${copyIndex}`}
               className="flex size-[length:var(--size-hunt-welcome-marquee-tile)] shrink-0 items-center justify-center"
             >
-              <img
-                src={plant.src}
-                alt=""
-                className="h-full w-full object-contain object-center"
-                draggable={false}
-                loading="eager"
-                decoding="sync"
-                onLoad={measureLoop}
-              />
+              {plant.id === "wattleseed" ? (
+                <WelcomeMarqueeLottieIcon animationData={wattleseedLottie} onReady={measureLoop} />
+              ) : plant.id === "kangaroo-grass" ? (
+                <WelcomeMarqueeLottieIcon animationData={kangarooGrassLottie} onReady={measureLoop} />
+              ) : (
+                <img
+                  src={plant.src}
+                  alt=""
+                  className="h-full w-full object-contain object-center"
+                  draggable={false}
+                  loading="eager"
+                  decoding="sync"
+                  onLoad={measureLoop}
+                />
+              )}
             </div>
           )),
         )}

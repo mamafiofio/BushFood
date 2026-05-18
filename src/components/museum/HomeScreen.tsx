@@ -1,5 +1,15 @@
 import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import Lottie, { type LottieRefCurrentProps } from "lottie-react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from "react";
+import kangarooGrassLottie from "../../assets/native-plants/lottie/KangarooGrass.json";
+import wattleseedLottie from "../../assets/native-plants/lottie/Wattleseed.json";
 import { HUNT_PLANT_FOUND_MEDIA } from "../../tokens/huntPlantFoundMedia";
 import { HUNT_PLANT_TILES, type HuntPlantId } from "../../tokens/huntPlantTiles";
 import { HuntPrimaryButton } from "./HuntPrimaryButton";
@@ -14,6 +24,47 @@ type HomeScreenProps = {
 
 const COLLECTED_STORAGE_KEY = "bushfood-collected";
 const QR_SCANNER_ELEMENT_ID = "bushfood-qr-reader";
+const HOME_LOTTIE_GAP_MS = 5000;
+
+/** Matches homescreen entrance tokens in index.css (`hunt-home-screen--enter`, `hunt-plant-tile-enter`). */
+const HOME_INTRO_TITLE_STAGGER_MS = 50;
+const HOME_INTRO_TITLE_DURATION_MS = 420;
+const HOME_INTRO_REVEAL_STAGGER_MS = 90;
+const HOME_INTRO_REVEAL_DURATION_MS = 280;
+const HOME_PLANT_TILE_STAGGER_MS = 100;
+const HOME_PLANT_TILE_DURATION_MS = 480;
+
+function computeHomeIntroEndMs(titleLetterCount: number, introLineCount: number): number {
+  const titleEndMs =
+    (titleLetterCount - 1) * HOME_INTRO_TITLE_STAGGER_MS + HOME_INTRO_TITLE_DURATION_MS;
+  const introEndMs =
+    titleEndMs + (introLineCount - 1) * HOME_INTRO_REVEAL_STAGGER_MS + HOME_INTRO_REVEAL_DURATION_MS;
+  const lastPlantEnterIndex = HUNT_PLANT_TILES.length - 1;
+  return introEndMs + lastPlantEnterIndex * HOME_PLANT_TILE_STAGGER_MS + HOME_PLANT_TILE_DURATION_MS;
+}
+
+function HomePlantLottieIcon({
+  animationData,
+  lottieRef,
+}: {
+  animationData: typeof wattleseedLottie | typeof kangarooGrassLottie;
+  lottieRef: RefObject<LottieRefCurrentProps | null>;
+}) {
+  const handleReady = useCallback(() => {
+    lottieRef.current?.goToAndStop(0, true);
+  }, [lottieRef]);
+
+  return (
+    <Lottie
+      lottieRef={lottieRef}
+      animationData={animationData}
+      loop={false}
+      autoplay={false}
+      onDOMLoaded={handleReady}
+      className="h-full w-full"
+    />
+  );
+}
 
 const CAMERA_TRY_ORDER: MediaTrackConstraints[] = [
   { facingMode: { ideal: "environment" } },
@@ -84,7 +135,8 @@ function parsePlantIdFromDecodedQr(text: string): HuntPlantId | null {
 }
 
 const HOME_INTRO_LINES = [
-  "Find plant markers in the galleries and scan them",
+  "Find plant markers in",
+  "the galleries and scan them",
   "with your camera.",
 ] as const;
 
@@ -336,8 +388,52 @@ export function HomeScreen({ foragerName, isActive = false }: HomeScreenProps) {
     "--welcome-title-letter-count": [...greeting].length,
     "--welcome-intro-line-count": HOME_INTRO_LINES.length,
   } as CSSProperties;
+  const wattleseedLottieRef = useRef<LottieRefCurrentProps>(null);
+  const kangarooGrassLottieRef = useRef<LottieRefCurrentProps>(null);
   const leftColumnPlants = HUNT_PLANT_TILES.filter((_, index) => index % 2 === 0);
   const rightColumnPlants = HUNT_PLANT_TILES.filter((_, index) => index % 2 === 1);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) {
+      wattleseedLottieRef.current?.goToAndStop(0, true);
+      kangarooGrassLottieRef.current?.goToAndStop(0, true);
+      return;
+    }
+
+    const introEndMs = computeHomeIntroEndMs([...greeting].length, HOME_INTRO_LINES.length);
+    const firstPlayMs = introEndMs + HOME_LOTTIE_GAP_MS;
+    let cancelled = false;
+    const timeoutIds: ReturnType<typeof setTimeout>[] = [];
+    let nextPlant: HuntPlantId = "wattleseed";
+
+    const playPlant = (plantId: HuntPlantId) => {
+      const lottie =
+        plantId === "wattleseed" ? wattleseedLottieRef.current : kangarooGrassLottieRef.current;
+      lottie?.goToAndPlay(0, true);
+    };
+
+    const scheduleNext = (delayMs: number) => {
+      const timeoutId = window.setTimeout(() => {
+        if (cancelled) return;
+        playPlant(nextPlant);
+        nextPlant = nextPlant === "wattleseed" ? "kangaroo-grass" : "wattleseed";
+        scheduleNext(HOME_LOTTIE_GAP_MS);
+      }, delayMs);
+      timeoutIds.push(timeoutId);
+    };
+
+    scheduleNext(firstPlayMs);
+
+    return () => {
+      cancelled = true;
+      for (const timeoutId of timeoutIds) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [isActive, greeting]);
 
   function renderPlantTile(
     plant: (typeof HUNT_PLANT_TILES)[number],
@@ -362,7 +458,16 @@ export function HomeScreen({ foragerName, isActive = false }: HomeScreenProps) {
           className={`relative mx-auto aspect-square w-full max-w-[min(100%,var(--size-hunt-plant-tile))] overflow-visible rounded-full transition-hunt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hunt-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-hunt-bg${showPlantEntrance ? " hunt-plant-tile-enter" : ""}`}
         >
           <span className="pointer-events-none absolute inset-0 block overflow-hidden rounded-full">
-            <img src={plant.src} alt="" className="h-full w-full object-contain" draggable={false} />
+            {plant.id === "wattleseed" ? (
+              <HomePlantLottieIcon animationData={wattleseedLottie} lottieRef={wattleseedLottieRef} />
+            ) : plant.id === "kangaroo-grass" ? (
+              <HomePlantLottieIcon
+                animationData={kangarooGrassLottie}
+                lottieRef={kangarooGrassLottieRef}
+              />
+            ) : (
+              <img src={plant.src} alt="" className="h-full w-full object-contain" draggable={false} />
+            )}
           </span>
           {showSticker ? (
             <span
