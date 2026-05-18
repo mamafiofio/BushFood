@@ -302,24 +302,39 @@ export function HomeScreen({ foragerName, isActive = false }: HomeScreenProps) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [scanOpen, foundPlant, stopScan]);
 
+  const addPlantToCollection = useCallback((id: HuntPlantId) => {
+    setCollectedPlants((prev) => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  }, []);
+
   const handleAddToCollection = useCallback(() => {
     const id = foundPlantRef.current;
     if (id != null) {
-      setCollectedPlants((prev) => {
-        if (prev.has(id)) return prev;
-        const next = new Set(prev);
-        next.add(id);
-        return next;
-      });
+      addPlantToCollection(id);
     }
     setFoundPlant(null);
     setScanOpen(false);
-  }, []);
+  }, [addPlantToCollection]);
+
+  const handleDismissFound = useCallback(
+    (id: HuntPlantId | null) => {
+      if (id != null) {
+        addPlantToCollection(id);
+      }
+      setFoundPlant(null);
+    },
+    [addPlantToCollection],
+  );
 
   const showHeaderEntrance = isActive;
-  const showPlantEntrance = foragerName.trim().length > 0;
-  const homeHeaderEntranceStyle = {
+  const showPlantEntrance = showHeaderEntrance;
+  const homeEntranceStyle = {
     "--welcome-title-letter-count": [...greeting].length,
+    "--welcome-intro-line-count": HOME_INTRO_LINES.length,
   } as CSSProperties;
   const leftColumnPlants = HUNT_PLANT_TILES.filter((_, index) => index % 2 === 0);
   const rightColumnPlants = HUNT_PLANT_TILES.filter((_, index) => index % 2 === 1);
@@ -370,11 +385,12 @@ export function HomeScreen({ foragerName, isActive = false }: HomeScreenProps) {
   return (
     <main className="relative flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden bg-transparent text-center">
       <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-hunt-screen">
-        <header
-          className={`pt-[48px]${showHeaderEntrance ? " hunt-home-header--enter" : ""}`}
-          style={showHeaderEntrance ? homeHeaderEntranceStyle : undefined}
+        <div
+          className={showHeaderEntrance ? "hunt-home-screen--enter" : undefined}
+          style={showHeaderEntrance ? homeEntranceStyle : undefined}
         >
-          <HomeGreeting greeting={greeting} animated={showHeaderEntrance} />
+          <header className="pt-[length:var(--spacing-hunt-welcome-title-pt)]">
+            <HomeGreeting greeting={greeting} animated={showHeaderEntrance} />
           <p className="mx-auto mt-hunt-tight max-w-full text-pretty text-base font-normal leading-relaxed text-hunt-text-subhead sm:mx-hunt-subhead-inline">
             {showHeaderEntrance
               ? HOME_INTRO_LINES.map((line, index) => (
@@ -408,6 +424,7 @@ export function HomeScreen({ foragerName, isActive = false }: HomeScreenProps) {
             )}
           </ul>
         </div>
+        </div>
       </div>
 
       <div className="flex w-full min-w-0 shrink-0 flex-col px-hunt-screen pb-hunt-screen pt-hunt-gap">
@@ -430,9 +447,7 @@ export function HomeScreen({ foragerName, isActive = false }: HomeScreenProps) {
       <PlantFoundSheet
         plantId={foundPlant}
         open={foundPlant !== null}
-        onDismiss={() => {
-          setFoundPlant(null);
-        }}
+        onDismiss={handleDismissFound}
         onAddToCollection={handleAddToCollection}
       />
     </main>

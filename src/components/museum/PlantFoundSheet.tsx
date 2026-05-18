@@ -200,21 +200,19 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
         }
         onClick={startExit}
       />
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[370] flex w-full min-w-0 justify-center px-hunt-screen pt-hunt-gap">
-        <div
-          role="dialog"
-          aria-modal="true"
+      <div
+        role="dialog"
+        aria-modal="true"
           aria-labelledby={titleId}
           className={
             exiting
-              ? "found-sheet-panel-exit pointer-events-auto w-full min-w-0 max-w-md"
-              : "pointer-events-auto w-full min-w-0 max-w-md"
+              ? "found-sheet-panel-exit fixed inset-0 z-[370] flex min-h-0 w-full min-w-0 flex-col overflow-hidden bg-hunt-bg text-left"
+              : "fixed inset-0 z-[370] flex min-h-0 w-full min-w-0 flex-col overflow-hidden bg-hunt-bg text-left"
           }
           onAnimationEnd={onSheetMotionAnimationEnd}
         >
-          <div className="pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]">
             <div
-              className={`relative flex min-h-0 max-h-[min(90dvh,100svh)] w-full min-w-0 flex-col overflow-x-hidden overflow-y-hidden rounded-t-[length:var(--radius-device-shell)] text-left shadow-lg ring-1 ring-hunt-chip-border backdrop-blur-sm${showEntrance ? " found-sheet-shell-enter found-sheet--enter bg-hunt-bg" : " bg-hunt-bg/90"}`}
+              className={`relative flex min-h-0 flex-1 w-full min-w-0 flex-col overflow-x-hidden overflow-y-hidden${showEntrance ? " found-sheet-shell-enter found-sheet--enter" : ""}`}
               style={showEntrance ? foundEntranceStyle : undefined}
             >
               <button
@@ -302,14 +300,12 @@ export function PlantFoundSheet({ plantId, open, onDismiss, onAddToCollection }:
               </div>
 
               <div
-                className={`min-w-0 shrink-0 px-hunt-screen pt-hunt-gap pb-hunt-screen${showEntrance ? " found-sheet-body-reveal" : ""}`}
+                className={`min-w-0 shrink-0 px-hunt-screen pt-hunt-gap pb-[max(1.25rem,env(safe-area-inset-bottom,0px))]${showEntrance ? " found-sheet-body-reveal" : ""}`}
               >
                 <HuntPrimaryButton type="button" onClick={onAddToCollection}>
                   Add to collection
                 </HuntPrimaryButton>
               </div>
-            </div>
-          </div>
         </div>
       </div>
     </>,
